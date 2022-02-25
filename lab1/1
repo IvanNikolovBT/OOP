@@ -1,0 +1,29 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+typedef struct products {
+    char nameProduct[100];
+    float priceProduct;
+    float quantityProduct;
+}check;
+
+int main()
+{
+    int n;
+    float total=0;
+    scanf("%d", &n);
+    check arr[n];
+    for(int i=0; i<n; i++) {
+        check sm;
+        scanf("%s", sm.nameProduct);
+        scanf("%f %f", &sm.priceProduct, &sm.quantityProduct);
+        arr[i] = sm;
+    }
+    for(int i=0; i<n; i++) {
+        total += (arr[i].priceProduct * arr[i].quantityProduct);
+        printf("%d. %s\t%.2f x %.1f = %.2f\n", i+1, arr[i].nameProduct, arr[i].priceProduct, arr[i].quantityProduct, arr[i].priceProduct * arr[i].quantityProduct);
+    }
+    printf("Total: %.2f", total);
+    return 0;
+}
