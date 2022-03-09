@@ -1,0 +1,242 @@
+1.
+
+#include <iostream>
+#include <math.h>
+using namespace std;
+
+class Triangle{
+private:
+    int a,b,c;
+public:
+    Triangle(){}
+    Triangle(int x, int y, int z)
+    {
+        a = x;
+        b = y;
+        c = z;
+    }
+    ~Triangle(){}
+
+    int perimetar()
+    {
+        return a+b+c;
+    }
+    int setA(int x)
+    {
+        a = x;
+    }
+    int setB(int x)
+    {
+        b = x;
+    }
+    int setC(int x)
+    {
+        c = x;
+    }
+    float area()
+    {
+        float s = (a+b+c)/2.0;
+        return sqrt(s * (s-a)*(s-b)*(s-c));
+    }
+
+};
+
+
+int main(){
+    int a,b,c;
+    cin>>a>>b>>c;
+    Triangle t(a,b,c);
+    cout<<"Plostina: "<<t.area()<<endl;
+    cout<<"Perimetar: "<<t.perimetar()<<endl;
+}
+
+
+2.
+
+#include <iostream>
+#include <math.h>
+#include <cstring>
+using namespace std;
+
+enum position{
+vraboten, direktor, shef
+};
+
+class Person{
+private:
+    char ime[100];
+    int plata;
+    position pos;
+public:
+    Person(){}
+    Person(char * i, int s, position p)
+    {
+        strcpy(ime,i);
+        plata = s;
+        pos = p;
+    }
+    ~Person(){}
+    void setIme(char * i)
+    {
+       strcpy(ime,i);
+    }
+    void setPlata(int s)
+    {
+        plata = s;
+    }
+    void setPozicija(position p)
+    {
+        pos = p;
+    }
+    char * getIme()
+    {
+        return ime;
+    }
+    int getPlata()
+    {
+        return plata;
+    }
+    position getPosition()
+    {
+        return pos;
+    }
+};
+
+void sort(Person niza[],int n)
+{
+    for(int i=0;i<n-1;i++)
+    {
+        for(int j=i;j<n;j++)
+        {
+            if(niza[i].getPlata()<niza[j].getPlata())
+            {
+                Person temp = niza[i];
+                niza[i] = niza[j];
+                niza[j] = temp;
+            }
+        }
+    }
+}
+
+
+int main(){
+    Person vraboteni[100];
+    int plata,pos;
+    char ime[100];
+    int n;
+    cin>>n;
+    for(int i=0;i<n;i++)
+    {
+        cin>>ime>>plata>>pos;
+        vraboteni[i].setIme(ime);
+        vraboteni[i].setPlata(plata);
+        vraboteni[i].setPozicija((position)pos);
+
+    }
+    sort(vraboteni,n);
+    for(int i=0;i<n;i++)
+    {
+        cout<<i+1<<". "<<vraboteni[i].getIme()
+        <<"\t"<<vraboteni[i].getPlata()
+        <<"\t"<<vraboteni[i].getPosition()<<endl;
+    }
+
+}
+
+3.
+
+#include <iostream>
+#include <math.h>
+#include <cstring>
+using namespace std;
+
+class Email{
+private:
+    char to[100];
+    char from[100];
+    char subject[200];
+    char body[500];
+public:
+    Email(){}
+    Email(char * _to, char * _from, char * _subject, char * _body)
+    {
+        strcpy(to,_to);
+        strcpy(from,_from);
+        strcpy(subject,_subject);
+        strcpy(body,_body);
+    }
+    ~Email(){}
+    void setTo(char * t)
+    {
+        strcpy(to,t);
+    }
+    void setFrom(char * t)
+    {
+        strcpy(from, t);
+    }
+    void setSubject(char * t)
+    {
+        strcpy(subject,t);
+    }
+    void setBody(char * t)
+    {
+        strcpy(body,t);
+    }
+    char * getTo()
+    {
+        return to;
+    }
+    char *getFrom()
+    {
+        return from;
+    }
+    char * getSubject()
+    {
+        return subject;
+    }
+    char * getBody()
+    {
+        return body;
+    }
+    void print()
+    {
+        cout<<"To: "<<to<<endl;
+        cout<<"From: "<<from<<endl;
+        cout<<"Subject: "<<subject<<endl;
+        cout<<"Body: "<<body<<endl;
+    }
+};
+
+bool checkEmail(char * adress)
+{
+    int br = 0;
+    for(int i=0;i<strlen(adress);i++)
+    {
+        if(adress[i]=='@')
+        {
+            br++;
+        }
+    }
+    if(br==1)
+    {
+        return true;
+    }
+    else return false;
+}
+
+int main(){
+    char to[100], from[100], subject[200], body[500];
+    cin>>to;
+    if(checkEmail(to))
+    {
+        cin>>from>>subject>>body;
+        Email poraka(to,from,subject,body);
+        cout<<"Pratena poraka: "<<endl;
+        poraka.print();
+    }
+    else
+    {
+        cout<<"Nevalidna adresa!"<<endl;
+    }
+
+}
