@@ -1,0 +1,61 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+struct Igrac {
+    char ime[15];
+    int level;
+    int poeni;
+};
+
+struct KompjuterskaIgra {
+    char imeIgra[15];
+    Igrac igraci[30];
+    int brIgraci;
+};
+
+void readIgrac(Igrac *player) {
+    cin>>player->ime>>player->level>>player->poeni;
+}
+
+void readKI(KompjuterskaIgra * ki) {
+    cin>>ki->imeIgra>>ki->brIgraci;
+    for(int i=0; i<ki->brIgraci; i++) {
+        readIgrac(&ki->igraci[i]);
+    }
+}
+
+void najdobarIgrac(KompjuterskaIgra* igri, int n) {
+    int mostPlayedID = 0;
+    for(int i=1; i<n; i++) {
+        if(igri[i].brIgraci > igri[mostPlayedID].brIgraci) {
+            mostPlayedID = i;
+        }
+    }
+    KompjuterskaIgra mostPopular = igri[mostPlayedID];
+    int indexMax = 0;
+    for(int i=1; i<mostPopular.brIgraci; i++) {
+        if(mostPopular.igraci[i].poeni > mostPopular.igraci[indexMax].poeni) {
+            indexMax = i;
+        }
+        else if (mostPopular.igraci[i].poeni==mostPopular.igraci[indexMax].poeni) {
+            if (mostPopular.igraci[i].level>mostPopular.igraci[indexMax].level)
+                indexMax=i;
+        }
+    }
+    cout<<"Najdobar igrac e igracot so korisnicko ime "<<mostPopular.igraci[indexMax].ime;
+    cout<<" koj ja igra igrata "<<mostPopular.imeIgra<<endl;
+}
+
+int main()
+{
+    KompjuterskaIgra kgame[100];
+    int n;
+    cin>>n;
+    for(int i=0; i<n; i++) {
+        readKI(&kgame[i]);
+    }
+
+    najdobarIgrac(kgame, n);
+    return 0;
+}
