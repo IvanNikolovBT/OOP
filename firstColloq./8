@@ -1,0 +1,85 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+
+typedef struct Laptop {
+    char firma[100];
+    float goleminaMonitor;
+    int touch;
+    int cena;
+}Laptop;
+
+typedef struct ITStore {
+    char ime[100];
+    char lokacija[100];
+    Laptop laptopi[100];
+    int brElem;
+}ITStore;
+
+void readLaptops (Laptop* lp) {
+    scanf("%s %g %d %d", lp->firma, &lp->goleminaMonitor, &lp->touch, &lp->cena);
+}
+
+void readITS(ITStore *its) {
+    scanf("%s %s %d", its->ime, its->lokacija, &its->brElem);
+    for(int i=0; i<its->brElem; i++) {
+        readLaptops(&its->laptopi[i]);
+    }
+}
+
+void print(Laptop lp) {
+        printf("%s %g %d\n", lp.firma, lp.goleminaMonitor, lp.cena);
+}
+
+void printIT(ITStore it) {
+        printf("%s %s\n", it.ime, it.lokacija);
+        for(int i=0; i<it.brElem; i++) {
+            print(it.laptopi[i]);
+        }
+}
+
+int najeftinaCena (ITStore it) {
+    int min, f = 0;
+    for(int i=0; i<it.brElem; i++) {
+        if(it.laptopi[i].touch) {
+            if(!f) {
+                min = it.laptopi[i].cena;
+                f=1;
+            }
+            else if(it.laptopi[i].cena < min) {
+                min = it.laptopi[i].cena;
+            }
+        }
+    }
+    return min;
+}
+
+int najeftina_ponuda(ITStore s[], int n) {
+    int min = najeftinaCena(s[0]);
+    int minI = 0;
+    for(int i=1; i<n; i++) {
+        if(najeftinaCena(s[i])<min) {
+            min = najeftinaCena(s[i]);
+            minI = i;
+        }
+    }
+    printf("Najeftina ponuda ima prodavnicata: \n%s %s\nNajniskata cena iznesuva: %d", s[minI].ime, s[minI].lokacija, najeftinaCena(s[minI]));
+}
+
+int main()
+{
+    ITStore its[100];
+    int n;
+    scanf("%d", &n);
+    for(int i=0; i<n; i++) {
+        readITS(&its[i]);
+    }
+
+    for(int i=0; i<n; i++) {
+        printIT(its[i]);
+    }
+
+    najeftina_ponuda(its, n);
+    return 0;
+}
