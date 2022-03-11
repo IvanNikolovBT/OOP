@@ -1,0 +1,71 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+
+typedef struct Pacient {
+    char imePrezime[100];
+    int zo;
+    int pregledi;
+}Pacient;
+
+typedef struct MaticenDoktor {
+    char imeDoctor[100];
+    int brPacienti;
+    Pacient pacienti[200];
+    float cenaPregled;
+}MaticenDoktor;
+
+void readPacienti(Pacient *p) {
+    scanf("%s %d %d", p->imePrezime, &p->zo, &p->pregledi);
+}
+
+void readDoc(MaticenDoktor * md) {
+    scanf("%s %d %f", md->imeDoctor, &md->brPacienti, &md->cenaPregled);
+    for(int i=0; i<md->brPacienti; i++) {
+        readPacienti(&md->pacienti[i]);
+    }
+}
+
+void najuspesen_doktor(MaticenDoktor * m, int n) {
+    float sumDoc = 0;
+    float vkupno = 0;
+    int pregledi = 0;
+    int temp2, temp3;
+    for(int i=0; i<n; i++) {
+        pregledi = 0;
+        sumDoc = 0;
+        for(int j=0; j<m->brPacienti; j++) {
+        if(m[i].pacienti[j].zo == 0) {
+            sumDoc = m[i].pacienti[j].pregledi * m[i].cenaPregled;
+        }
+        pregledi += m[i].pacienti[j].pregledi;
+        if (sumDoc > vkupno) {
+            temp3 = pregledi;
+            vkupno = sumDoc;
+            temp2 = i;
+        }
+        else if (sumDoc == vkupno) {
+            if(pregledi > temp3) {
+                temp3 = pregledi;
+                vkupno = sumDoc;
+                temp2 = i;
+            }
+        }
+        }
+    }
+     printf("%s %.2f %d",m[temp2].imeDoctor,vkupno,temp3);
+}
+
+int main()
+{
+    MaticenDoktor md[200];
+    int n;
+    scanf("%d", &n);
+    for(int i=0; i<n; i++) {
+        readDoc(&md[i]);
+    }
+
+    najuspesen_doktor(md, n);
+    return 0;
+}
