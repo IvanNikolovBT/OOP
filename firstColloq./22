@@ -1,0 +1,67 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+
+typedef struct Proizvod {
+    char kod[20];
+    int cena;
+    int dostapnost;
+}P;
+
+typedef struct Narachka {
+    char ime[20];
+    P proizvodi[10];
+    int naracani[10];
+    int brProizvodi;
+}N;
+
+void readp (P *p) {
+    scanf("%s %d %d", p->kod, &p->cena, &p->dostapnost);
+}
+
+void readn (N *n) {
+    scanf("%s %d", n->ime, &n->brProizvodi);
+    for(int i=0; i<n->brProizvodi; i++) {
+        readp(&n->proizvodi[i]);
+    }
+    for(int j=0; j<n->brProizvodi; j++) {
+        scanf("%d", &n->naracani[j]);
+    }
+}
+
+void pecatiFaktura(N nn) {
+    P tmp;
+    printf("Faktura za %s\n", nn.ime);
+    int vkupno=0;
+    for(int i=0; i<nn.brProizvodi; i++) {
+        if(nn.naracani[i] > nn.proizvodi[i].dostapnost) {
+            printf("Fakturata ne moze da se izgotvi");
+            return;
+        }
+    }
+
+    for(int i=0; i<nn.brProizvodi-1; i++) {
+        for(int j=1; j<nn.brProizvodi; j++) {
+            if(strcmp(nn.proizvodi[i].kod, nn.proizvodi[j].kod) > 0) {
+                tmp = nn.proizvodi[i];
+                nn.proizvodi[i] = nn.proizvodi[j];
+                nn.proizvodi[j] = tmp;
+            }
+        }
+    }
+    for(int i=0; i<nn.brProizvodi; i++) {
+        printf("%s %d %d %d\n", nn.proizvodi[i].kod, nn.proizvodi[i].cena, nn.naracani[i], (nn.proizvodi[i].cena*nn.naracani[i]));
+        vkupno += nn.proizvodi[i].cena*nn.naracani[i];
+    }
+    printf("Vkupnata suma na fakturata e %d", vkupno);
+}
+
+int main()
+{
+    N naracka;
+    readn(&naracka);
+
+    pecatiFaktura(naracka);
+    return 0;
+}
