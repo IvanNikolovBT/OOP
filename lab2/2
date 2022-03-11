@@ -1,0 +1,36 @@
+2.
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class Krug {
+private:
+    float radius;
+    const float PI = 3.14;
+public:
+    Krug(){}
+    Krug(float radius) {
+        this->radius = radius;
+    }
+    float plostina() {
+        return radius*radius*PI;
+    }
+    float perimetar() {
+        return radius*2*PI;
+    }
+    bool ednakvi() {
+        return plostina() == perimetar();
+    }
+    ~Krug(){}
+};
+
+int main() {
+	float r;
+	cin >> r;
+	Krug k(r);
+	cout << k.perimetar() << endl;
+	cout << k.plostina() << endl;
+	cout << k.ednakvi() <<endl;
+    Krug krug;
+	return 0;
+}
