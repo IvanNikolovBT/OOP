@@ -1,0 +1,382 @@
+#1
+#include <iostream>
+#include <cstring>
+#include <math.h>
+ 
+using namespace std;
+ 
+class Momche{
+private:
+    char ime[50];
+    char prezime[50];
+    int godini;
+public:
+    Momche(int godini =0, char * ime = "", char * prezime = "")
+    {
+        this->godini = godini;
+        strcpy(this->ime,ime);
+        strcpy(this->prezime,prezime);
+    }
+ 
+    void print(){
+        cout<<"Momche: "<<ime<<" "<<prezime<<" "<<godini;
+    }
+    int getGodini()
+    {
+        return godini;
+    }
+};
+ 
+class Devojche{
+private:
+    char ime[50];
+    char prezime[50];
+    int godini;
+public:
+    Devojche(int godini =0, char * ime = "", char * prezime = "")
+    {
+        this->godini = godini;
+        strcpy(this->ime,ime);
+        strcpy(this->prezime,prezime);
+    }
+ 
+    void print(){
+        cout<<"Devojche: "<<ime<<" "<<prezime<<" "<<godini;
+    }
+    int getGodini()
+    {
+        return godini;
+    }
+};
+ 
+ 
+class Sredba{
+private:
+    Momche momce;
+    Devojche devojce;
+public:
+    Sredba(Momche m, Devojche d)
+    {
+        momce = m;
+        devojce = d;
+    }
+    ~Sredba(){}
+    void print()
+    {
+        cout<<"Sredba: ";
+        momce.print();
+        devojce.print();
+    }
+ 
+    void daliSiOdgovaraat()
+    {
+        if(abs(momce.getGodini()-devojce.getGodini())<5)
+        {
+            cout<<"Si odgovaraat"<<endl;
+        }
+        else
+        {
+            cout<<"Ne si odgovaraat"<<endl;
+        }
+    }
+};
+ 
+ 
+int main()
+{
+    char ime[50],prezime[50];
+    int godini;
+    cout<<"Vnesi podatoci za momce:";
+    cin>>ime>>prezime>>godini;
+    Momche m(godini,ime,prezime);
+ 
+    cout<<"Vnesi podatoci za devojce:";
+    cin>>ime>>prezime>>godini;
+    Devojche d(godini,ime,prezime);
+    Devojche devojce(d);
+ 
+    Sredba s(m,devojce);
+    s.print();
+    cout<<endl;
+    s.daliSiOdgovaraat();
+}
+ 
+ 
+#2
+#include <iostream>
+#include <cstring>
+#include <math.h>
+ 
+using namespace std;
+ 
+ 
+class Ekipa{
+private:
+    char ime[50];
+    char grad[50];
+    int godina;
+public:
+    Ekipa(char * ime = "", char * grad = "", int godina = 0)
+    {
+        this->godina = godina;
+        strcpy(this->ime,ime);
+        strcpy(this->grad,grad);
+    }
+ 
+    Ekipa(const Ekipa & e)
+    {
+        godina = e.godina;
+        strcpy(ime,e.ime);
+        strcpy(grad,e.grad);
+    }
+    char * getIme()
+    {
+        return ime;
+    }
+ 
+};
+ 
+class Natprevar{
+private:
+    Ekipa domakin, gostin;
+    int goloviDomakin, goloviGostin;
+public:
+    Natprevar(Ekipa d, Ekipa g, int gDom, int gGost)
+    {
+        domakin = d;
+        gostin = g;
+        goloviDomakin = gDom;
+        goloviGostin = gGost;
+    }
+    Ekipa getDomakin()
+    {
+        return domakin;
+    }
+    Ekipa getGostin()
+    {
+        return gostin;
+    }
+    int getGoloviDomakin()
+    {
+        return goloviDomakin;
+    }
+    int getGoloviGostin()
+    {
+        return goloviGostin;
+    }
+ 
+};
+ 
+bool revans(Natprevar n1, Natprevar n2)
+{
+    if(strcmp(n1.getDomakin().getIme(),n2.getGostin().getIme())==0
+       &&strcmp(n1.getGostin().getIme(),n2.getDomakin().getIme())==0)
+    {
+        return true;
+    }
+    else
+        return false;
+}
+ 
+ 
+Ekipa duel(Natprevar n1, Natprevar n2)
+{
+    if(revans(n1,n2))
+    {
+        int ekipa1Golovi = n1.getGoloviDomakin()+n2.getGoloviGostin();
+        int ekipa2Golovi = n1.getGoloviGostin() + n2.getGoloviDomakin();
+        if(ekipa1Golovi>ekipa2Golovi)
+        {
+            return n1.getDomakin();
+        }
+        else if(ekipa2Golovi>ekipa1Golovi)
+        {
+            return n1.getGostin();
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    else{
+        cout<<"Ne se sofpagaat"<<endl;
+        return 0;
+    }
+}
+ 
+ 
+ 
+int main()
+{
+    Ekipa e1("Real Madrid","Madrid",1880);
+    Ekipa e2("FC Barcelona","Barcelona",1880);
+ 
+    Natprevar n1(e1,e2,4,2);
+    Natprevar n2(e2,e1,1,0);
+    cout<<duel(n1,n2).getIme();
+ 
+}
+ 
+#3
+ 
+#include <iostream>
+#include <cstring>
+#include <math.h>
+ 
+using namespace std;
+ 
+class Datum{
+private:
+    int den,mesec,godina;
+public:
+    Datum(int den =0, int mesec = 0, int godina =0)
+    {
+        this->den = den;
+        this->mesec = mesec;
+        this->godina = godina;
+    }
+    Datum(const Datum &d)
+    {
+        godina = d.godina;
+        mesec = d.mesec;
+        den = d.den;
+    }
+    ~Datum(){}
+ 
+    int getDen()
+    {
+        return den;
+    }
+    int getMesec()
+    {
+        return mesec;
+    }
+    int getGodina()
+    {
+        return godina;
+    }
+    void print()
+    {
+        cout<<den<<"."<<mesec<<"."<<godina;
+    }
+};
+ 
+ 
+class Vraboten{
+private:
+    char ime[20];
+    int plata;
+    Datum dataRaganje;
+public:
+    Vraboten(){}
+    Vraboten(char * ime, int plata, Datum & data)
+    {
+        strcpy(this->ime,ime);
+        this->plata = plata;
+        dataRaganje = data;
+    }
+    int getPlata()
+    {
+        return plata;
+    }
+    char * getIme()
+    {
+        return ime;
+    }
+    Datum getDataRaganje()
+    {
+        return dataRaganje;
+    }
+ 
+    void print()
+    {
+        cout<<"Ime: "<<ime<<endl;
+        cout<<"Plata: "<<plata<<endl;
+        cout<<"Datum na raganje: ";
+        dataRaganje.print();
+        cout<<endl;
+    }
+};
+ 
+Vraboten najgolemaPlata(Vraboten vraboteni[], int n)
+{
+    Vraboten max = vraboteni[0];
+    for(int i =0;i<n;i++)
+    {
+        if(vraboteni[i].getPlata()>max.getPlata())
+        {
+            max = vraboteni[i];
+        }
+    }
+    return max;
+}
+ 
+int sporedba(Datum d1, Datum d2)
+{
+    if(d1.getGodina()>d2.getGodina())
+    {
+        return 1;
+    }
+    else if(d2.getGodina()>d1.getGodina())
+    {
+        return 2;
+    }
+    else if(d1.getMesec()>d2.getMesec())
+    {
+        return 1;
+    }
+    else if(d2.getMesec()>d1.getMesec())
+    {
+        return 2;
+    }
+    else if(d1.getDen()>d2.getDen())
+    {
+        return 1;
+    }
+    else if(d2.getDen()>d1.getDen())
+    {
+        return 2;
+    }
+    else 0;
+}
+ 
+ 
+Vraboten najmladVraboten(Vraboten vraboteni[], int n)
+{
+    Vraboten najmlad = vraboteni[0];
+    for(int i =0;i<n;i++)
+    {
+        if(sporedba(najmlad.getDataRaganje(),vraboteni[i].getDataRaganje())
+           == 2 )
+        {
+            najmlad = vraboteni[i];
+        }
+    }
+    return najmlad;
+}
+ 
+ 
+ 
+ 
+ 
+int main()
+{
+    Datum d1(1,1,1991);
+    Datum d2(2,2,1992);
+    Datum d3(11,11,1999);
+ 
+    Vraboten vraboteni[3];
+    Vraboten v1("Aleksandar",40000,d1);
+    Vraboten v2("Trajko",30000,d2);
+    Vraboten v3("Stefan",20000,d3);
+    vraboteni[0] = v1;
+    vraboteni[1] = v2;
+    vraboteni[2] = v3;
+ 
+    cout<<"Najmlad vraboten:"<<endl;
+    najmladVraboten(vraboteni,3).print();
+ 
+    cout<<"Najplaten vraboten: "<<endl;
+    najgolemaPlata(vraboteni,3).print();
+ 
+}
