@@ -1,0 +1,76 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class Rabotnik {
+private:
+    char ime[30];
+    char prezime[30];
+    int plata;
+public:
+    Rabotnik () {}
+    Rabotnik (char *ime, char* prezime, int plata) {
+        strcpy(this->ime,ime);
+        strcpy(this->prezime,prezime);
+        this->plata=plata;
+    }
+    int getPlata() {
+        return plata;
+    }
+    void pecati() {
+        cout<<ime<<" "<<prezime<<" "<<plata<<endl;
+    }
+};
+
+class Fabrika {
+    private:
+    Rabotnik rabotnik[100];
+    int brVraboteni;
+    public:
+    Fabrika() {}
+    Fabrika(Rabotnik rabotnik[100], int brVraboteni) {
+        for(int i=0; i<100; i++) {
+            this->rabotnik[i]=rabotnik[i];
+        }
+        this->brVraboteni=brVraboteni;
+    }
+    void pecatiVraboteni () {
+        for(int i=0; i<brVraboteni; i++) {
+            rabotnik[i].pecati();
+        }
+    }
+    void pecatiSoPlata(int plata) {
+        for(int i=0; i<brVraboteni; i++) {
+            if(rabotnik[i].getPlata()>=plata) {
+                rabotnik[i].pecati();
+            }
+        }
+    }
+};
+
+
+
+int main() {
+    int n;
+    char ime[30];
+    char prezime[30];
+    int plata;
+    cin>>n;
+    Rabotnik r[n];
+    for(int i=0; i<n; i++) {
+        cin>>ime;
+        cin>>prezime;
+        cin>>plata;
+        Rabotnik ra(ime,prezime,plata);
+        r[i]=ra;
+    }
+    int minPlata;
+    cin>>minPlata;
+    Fabrika f(r, n);
+    cout<<"Site vraboteni:"<<endl;
+    f.pecatiVraboteni();
+    cout<<"Vraboteni so plata povisoka od "<<minPlata<<" :"<<endl;
+    f.pecatiSoPlata(minPlata);
+
+ 	return 0;
+ }
