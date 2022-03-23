@@ -1,0 +1,309 @@
+#include <iostream>
+using namespace std;
+ 
+ 
+class Array{
+private:
+    int * a;
+    int n;
+    int capacity;
+public:
+    Array(int capacity = 5)
+    {
+        a = new int[capacity];
+        n = 0;
+        this->capacity  = capacity;
+    }
+    ~Array(){
+        delete [] a;
+    }
+    Array(const Array &arr)
+    {
+        n = arr.n;
+        capacity = arr.capacity;
+        a = new int[capacity];
+        for(int i=0;i<n;i++)
+        {
+            a[i] = arr.a[i];
+        }
+    }
+ 
+    Array& operator=(const Array &arr)
+    {
+        if(this == &arr)
+        {
+            return *this;
+        }
+        n = arr.n;
+        capacity = arr.capacity;
+        delete [] a;
+        a = new int[capacity];
+        for(int i=0;i<n;i++)
+        {
+            a[i] = arr.a[i];
+        }
+        return *this;
+    }
+    void print()
+    {
+        for(int i=0;i<n;i++)
+        {
+            cout<<a[i]<<" ";
+        }
+        for(int i=n;i<capacity;i++)
+        {
+            cout<<"- ";
+        }
+        cout<<endl;
+    }
+    void change(int nn, int m)
+    {
+        for(int i=0;i<n;i++)
+        {
+            if(a[i]==nn)
+            {
+                a[i] = m;
+            }
+        }
+    }
+ 
+    void add(int nov)
+    {
+        if(capacity==n)
+        {
+            int * temp = new int[2*capacity];
+            for(int i=0;i<n;i++)
+            {
+                temp[i] = a[i];
+            }
+            delete [] a;
+            a = temp;
+            capacity = capacity * 2;
+        }
+        a[n] = nov;
+        n++;
+    }
+ 
+    void deleteAll(int za_brisenje)
+    {
+        int newN = 0;
+        int j = 0;
+        for(int i=0;i<n;i++)
+        {
+            if(a[i]!=za_brisenje)
+            {
+                a[j] = a[i];
+                j++;
+                newN++;
+            }
+        }
+        n = newN;
+    }
+};
+ 
+ 
+ 
+int main()
+{
+    Array arr;
+    arr.add(5);
+    arr.add(4);
+    arr.add(3);
+    arr.add(2);
+    arr.add(1);
+ 
+    Array b(arr);
+    Array c;
+    c = arr;
+ 
+    b.add(2);
+    c.change(5,11);
+    b.deleteAll(2);
+ 
+    cout<<"arr:";
+    arr.print();
+ 
+    cout<<"b:";
+    b.print();
+ 
+ 
+    cout<<"c:";
+    c.print();
+ 
+ 
+}
+ 
+ 
+2.
+#include <iostream>
+#include <cstring>
+using namespace std;
+ 
+class WebPage{
+private:
+    char url[100];
+    char * sodrzina;
+public:
+    WebPage(char * url = "", char * sodrzina = "")
+    {
+        strcpy(this->url,url);
+        this->sodrzina = new char[strlen(sodrzina)+1];
+        strcpy(this->sodrzina,sodrzina);
+    }
+    ~WebPage(){
+    delete [] sodrzina;
+    }
+    WebPage(const WebPage & wp)
+    {
+        strcpy(url,wp.url);
+        sodrzina = new char[strlen(wp.sodrzina)+1];
+        strcpy(sodrzina,wp.sodrzina);
+    }
+    WebPage& operator=(WebPage & wp)
+    {
+        if(this==&wp){
+                return *this;
+        }
+        strcpy(url,wp.url);
+        delete [] sodrzina;
+        sodrzina = new char[strlen(wp.sodrzina)+1];
+        strcpy(sodrzina,wp.sodrzina);
+        return *this;
+    }
+ 
+    bool daliIsti(WebPage & wp)
+    {
+        return strcmp(url,wp.url)==0;
+    }
+ 
+    friend class WebServer;
+};
+ 
+class WebServer{
+private:
+    char ime[30];
+    WebPage * stranici;
+    int n;
+public:
+    WebServer(char * ime = "", int n = 0, WebPage * wp = 0)
+    {
+        strcpy(this->ime,ime);
+        this->n = n;
+        stranici = new WebPage[n];
+        for(int i=0;i<n;i++)
+        {
+            stranici[i] = wp[i];
+        }
+    }
+    ~WebServer(){
+        delete [] stranici;
+    }
+    WebServer(const WebServer &ws)
+    {
+        strcpy(ime,ws.ime);
+        n = ws.n;
+        stranici = new WebPage[ws.n];
+        for(int i=0;i<n;i++)
+        {
+            stranici[i] = ws.stranici[i];
+        }
+    }
+    WebServer& operator=(const WebServer &ws)
+    {
+        if(this==&ws)
+        {
+            return *this;
+        }
+       strcpy(ime,ws.ime);
+        n = ws.n;
+        delete [] stranici;
+        stranici = new WebPage[ws.n];
+        for(int i=0;i<n;i++)
+        {
+            stranici[i] = ws.stranici[i];
+        }
+        return *this;
+    }
+ 
+    WebServer& addPage(WebPage nov)
+    {
+        int daliPostoi = 0;
+        for(int i=0;i<n;i++)
+        {
+            if(stranici[i].daliIsti(nov))
+            {
+                daliPostoi = 1;
+            }
+        }
+        if(daliPostoi==0)
+        {
+            WebPage * temp = new WebPage[n+1];
+            for(int i=0;i<n;i++)
+            {
+                temp[i] = stranici[i];
+            }
+            temp[n++] = nov;
+            delete [] stranici;
+            stranici = temp;
+        }
+        return *this;
+    }
+ 
+    WebServer& deletePage(WebPage za_brisenje)
+    {
+        int newN = 0;
+        for(int i=0;i<n;i++)
+        {
+            if(!stranici[i].daliIsti(za_brisenje))
+            {
+                newN++;
+            }
+        }
+        WebPage * temp = new WebPage[newN];
+        int j = 0;
+        for(int i=0;i<n;i++)
+        {
+            if(!stranici[i].daliIsti(za_brisenje))
+            {
+                temp[j++] = stranici[i];
+            }
+        }
+        delete [] stranici;
+        stranici = temp;
+        n = newN;
+        return *this;
+    }
+ 
+    void listPages()
+    {
+        for(int i=0;i<n;i++)
+        {
+            cout<<stranici[i].sodrzina<<" - "<<stranici[i].url<<endl;
+        }
+    }
+ 
+ 
+};
+ 
+ 
+ 
+int main()
+{
+    WebPage wp1("www.google.com","Search engine");
+    WebPage wp2("www.finki.ukim.mk","FINKI");
+    WebPage wp3("www.time.mk","Vesti");
+ 
+    WebServer ws("Server 1");
+    ws.addPage(wp1);
+    ws.addPage(wp2);
+    ws.addPage(wp3);
+ 
+    ws.listPages();
+ 
+    cout<<"Po delete: "<<endl;
+    ws.deletePage(wp3);
+ 
+    ws.listPages();
+ 
+ 
+}
