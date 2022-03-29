@@ -1,0 +1,164 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class Avtomobil {
+private:
+    char color[20];
+    char brand[20];
+    char model[20];
+public:
+    Avtomobil(char *c="", char *b="", char *m="") {
+        strcpy(color, c);
+        strcpy(brand, b);
+        strcpy(model, m);
+    }
+    Avtomobil& operator=(const Avtomobil &car) {
+        strcpy(color, car.color);
+        strcpy(brand, car.brand);
+        strcpy(model, car.model);
+    }
+    ~Avtomobil(){}
+    friend class ParkingPlac;
+};
+
+class ParkingPlac {
+private:
+    char address[20];
+    char * ID;
+    int price;
+    Avtomobil * cars;
+    int profit;
+    int parkedCars;
+public:
+    ParkingPlac() {
+        strcpy(address,"");
+        ID = nullptr;
+        price = 0;
+        profit = 0;
+    }
+    ParkingPlac(char * a, char * id, int p) {
+        strcpy(address, a);
+        ID = new char[strlen(id)+1];
+        strcpy(ID, id);
+        price = p;
+        cars = nullptr;
+    }
+    ParkingPlac(const ParkingPlac &plac) {
+        strcpy(address, plac.address);
+        ID = new char[strlen(plac.ID)+1];
+        strcpy(ID, plac.ID);
+        price = plac.price;
+        profit = plac.profit;
+    }
+    ParkingPlac& operator=(const ParkingPlac &plac) {
+        if(this == &plac) return * this;
+        strcpy(address, plac.address);
+        price = plac.price;
+        profit = plac.profit;
+        if(ID != nullptr) delete [] ID;
+        ID = new char[strlen(plac.ID)+1];
+        strcpy(ID, plac.ID);
+        return * this;
+    }
+    ~ParkingPlac () {
+        if(ID != nullptr) delete [] ID;
+    }
+    void pecati() {
+        if(profit != 0) {
+            cout<<ID<<" "<<address<<" - "<<profit<<" denari "<<endl;
+        }
+        else {
+            cout<<ID<<" "<<address<<endl;
+        }
+    }
+    void platiCasovi(int casovi) {
+        profit += casovi * price;
+    }
+    bool daliIstaAdresa(ParkingPlac pp) {
+        return !strcmp(this->address, pp.address);
+    }
+    char * getId () {
+        return ID;
+    }
+    void parkirajVozilo(Avtomobil novoVozilo) {
+        Avtomobil *kola = new Avtomobil[parkedCars+1];
+        for(int i=0; i<parkedCars; i++) {
+            kola[i] = cars[i];
+        }
+        if(cars != nullptr) delete [] cars;
+        kola[parkedCars] = novoVozilo;
+        cars = new Avtomobil[parkedCars++];
+        cars = kola;
+    }
+    void pecatiParkiraniVozila() {
+        cout<<"Vo parkingot se parkirani slednite vozila: "<<endl;
+        for(int i=0; i<parkedCars; i++) {
+            cout<<i+1<<"."<<cars[i].color<<" "<<cars[i].brand<<" "<<cars[i].model<<endl;
+        }
+    }
+};
+
+int main(){
+
+	ParkingPlac p[100];
+	int n,m;
+	char adresa[50],id[50];
+	int brojcasovi,cenacas;
+	cin>>n;
+	if(n > 0){
+
+
+		for (int i=0;i<n;i++){
+	        cin.get();
+			cin.getline(adresa,50);
+			cin>>id>>cenacas;
+			
+			ParkingPlac edna(adresa,id,cenacas);
+	        
+	        p[i]=edna;
+		}
+	    
+		//plakjanje
+		cin>>m;
+		for (int i=0;i<m;i++){
+
+			cin>>id>>brojcasovi;
+	        
+	        int findId=false;
+	        for (int j=0;j<m;j++){
+	            if (strcmp(p[j].getId(),id)==0){
+	                p[j].platiCasovi(brojcasovi);
+	                findId=true;
+	                break;
+	            }
+	        }
+			if (!findId)
+	        cout<<"Ne e platen parking. Greshen ID."<<endl;
+		}
+
+	    cout<<"========="<<endl;
+	    ParkingPlac pCentar("Cvetan Dimov","C10",80);
+		for (int i=0;i<n;i++)
+	        if (p[i].daliIstaAdresa(pCentar))
+	            p[i].pecati();
+	} else {
+
+		ParkingPlac najdobarPlac("Mars", "1337", 1);
+	    int brVozila;
+	    cin >> brVozila;
+	    for(int i = 0; i < brVozila; ++i){
+
+	    	char boja[20];
+	    	char brend[20];
+	    	char model[20];
+
+	    	cin >> boja >> brend >> model;
+	    	Avtomobil novAvtomobil(boja, brend, model);
+	    	najdobarPlac.parkirajVozilo(novAvtomobil);
+	    }
+	    if(brVozila != 0)
+	    najdobarPlac.pecatiParkiraniVozila();
+
+	}  
+}
