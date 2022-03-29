@@ -1,0 +1,265 @@
+#include<iostream>
+#include<cstring>
+
+using namespace std;
+
+enum Extension{
+    txt, pdf, exe
+};
+
+class File {
+private:
+    char * fileName;
+    Extension ext;
+    char * ownerName;
+    int size;
+public:
+    File () {
+        fileName = nullptr;
+        ownerName = nullptr;
+        size = 0;
+    }
+    File (char * fileName, char * ownerName, int size, Extension ext) {
+        this->fileName = new char[strlen(fileName)+1];
+        strcpy(this->fileName, fileName);
+        this->ownerName = new char[strlen(ownerName)+1];
+        strcpy(this->ownerName, ownerName);
+        this->size=size;
+        this->ext=ext;
+    }
+    File (const File &file) {
+        fileName = new char[strlen(file.fileName)+1];
+        strcpy(fileName, file.fileName);
+        ownerName = new char[strlen(file.ownerName)+1];
+        strcpy(ownerName, file.ownerName);
+        size = file.size;
+        ext = file.ext;
+    }
+    ~File() {
+        delete [] fileName;
+        delete [] ownerName;
+    }
+    File& operator=(const File &file) {
+        if(this == &file) return * this;
+        if (fileName != nullptr) delete [] fileName;
+        if (ownerName != nullptr) delete [] ownerName;
+        fileName = new char[strlen(file.fileName)+1];
+        strcpy(fileName, file.fileName);
+        ownerName = new char[strlen(file.ownerName)+1];
+        strcpy(ownerName, file.ownerName);
+        size = file.size;
+        ext = file.ext;
+        return * this;
+    }
+    void print () {
+        char extensionsName[4];
+        if(this->ext == 0) strcpy(extensionsName, "pdf");
+        if(this->ext == 1) strcpy(extensionsName, "txt");
+        if(this->ext == 2) strcpy(extensionsName, "exe");
+        cout<<"File name: "<<fileName<<"."<<extensionsName<<endl;
+        cout<<"File owner: "<<ownerName<<endl;
+        cout<<"File size: "<<size<<endl;
+    }
+    bool equals(const File & that) {
+        return this->ext == that.ext && !strcmp(this->ownerName, that.ownerName) && !strcmp(this->fileName, that.fileName);
+    }
+    bool equalsType(const File & that) {
+        return !strcmp(this->fileName, that.fileName) && this->ext == that.ext;
+    }
+    friend class Folder;
+};
+
+class Folder {
+private:
+    char * folderName;
+    int fileNum;
+    File * files;
+public:
+    Folder () {
+        folderName = nullptr;
+        fileNum = 0;
+        files = nullptr;
+    }
+    Folder (const char * name) {
+        this->folderName = new char [strlen(name)+1];
+        strcpy(this->folderName, name);
+        this->fileNum = 0;
+        this->files = new File[0];
+    }
+    ~Folder () {
+        delete [] folderName;
+        delete [] files;
+    }
+    void print() {
+        cout<<"Folder name: "<<this->folderName<<endl;
+        for(int i=0; i<this->fileNum; i++) {
+            this->files[i].print();
+        }
+    }
+    void remove(const File & file) {
+        int removeNum = this->fileNum;
+        for(int i=0; i<this->fileNum; i++) {
+            if(this->files[i].equals(file)) {
+                removeNum = i;
+                break;
+            }
+        }
+        if(removeNum == this->fileNum) return;
+        this->fileNum--;
+        for(int i=removeNum; i<this->fileNum; i++) {
+            this->files[i] = this->files[i+1];
+        }
+    }
+    void add(const File & file) {
+        File * temp = new File[this->fileNum+1];
+        for(int i=0; i<this->fileNum; i++) {
+            temp[i] = this->files[i];
+        }
+        temp[this->fileNum++] = file;
+        delete [] files;
+        files = temp;
+    }
+
+};
+
+int main() {
+	char fileName[20];
+	char fileOwner[20];
+	int ext;
+	int fileSize;
+
+	int testCase;
+	cin >> testCase;
+	if (testCase == 1) {
+		cout << "======= FILE CONSTRUCTORS AND = OPERATOR =======" << endl;
+		cin >> fileName;
+		cin >> fileOwner;
+		cin >> fileSize;
+		cin >> ext;
+
+		File created = File(fileName, fileOwner, fileSize, (Extension) ext);
+		File copied = File(created);
+		File assigned = created;
+
+		cout << "======= CREATED =======" << endl;
+		created.print();
+		cout << endl;
+        cout << "======= COPIED =======" << endl;
+		copied.print();
+		cout << endl;
+        cout << "======= ASSIGNED =======" << endl;
+		assigned.print();
+	}
+	else if (testCase == 2) {
+		cout << "======= FILE EQUALS AND EQUALS TYPE =======" << endl;
+		cin >> fileName;
+		cin >> fileOwner;
+		cin >> fileSize;
+		cin >> ext;
+
+		File first(fileName, fileOwner, fileSize, (Extension) ext);
+		first.print();
+
+		cin >> fileName;
+		cin >> fileOwner;
+		cin >> fileSize;
+		cin >> ext;	
+
+		File second(fileName, fileOwner, fileSize, (Extension) ext);
+		second.print();
+
+		cin >> fileName;
+		cin >> fileOwner;
+		cin >> fileSize;
+		cin >> ext;
+
+		File third(fileName, fileOwner, fileSize, (Extension) ext);
+		third.print();
+
+		bool equals = first.equals(second);
+		cout << "FIRST EQUALS SECOND: ";
+		if (equals)
+			cout << "TRUE" << endl;
+		else
+			cout << "FALSE" << endl;
+
+		equals = first.equals(third);
+		cout << "FIRST EQUALS THIRD: ";
+		if (equals)
+			cout << "TRUE" << endl;
+		else
+			cout << "FALSE" << endl;
+
+		bool equalsType = first.equalsType(second);
+		cout << "FIRST EQUALS TYPE SECOND: ";
+		if (equalsType)
+			cout << "TRUE" << endl;
+		else
+			cout << "FALSE" << endl;
+
+		equalsType = second.equals(third);
+		cout << "SECOND EQUALS TYPE THIRD: ";
+		if (equalsType)
+			cout << "TRUE" << endl;
+		else
+			cout << "FALSE" << endl;
+
+	}
+	else if (testCase == 3) {
+		cout << "======= FOLDER CONSTRUCTOR =======" << endl;
+		cin >> fileName;
+		Folder folder(fileName);
+		folder.print();
+
+	}
+	else if (testCase == 4) {
+		cout << "======= ADD FILE IN FOLDER =======" << endl;
+		char name[20];
+		cin >> name;
+		Folder folder(name);
+
+		int iter;
+		cin >> iter;
+
+		while (iter > 0) {
+			cin >> fileName;
+			cin >> fileOwner;
+			cin >> fileSize;
+			cin >> ext;
+
+			File file(fileName, fileOwner, fileSize, (Extension) ext);
+			folder.add(file);
+			iter--;
+		}
+		folder.print();
+	}
+	else {
+		cout << "======= REMOVE FILE FROM FOLDER =======" << endl;
+		char name[20];
+		cin >> name;
+		Folder folder(name);
+
+		int iter;
+		cin >> iter;
+
+		while (iter > 0) {
+			cin >> fileName;
+			cin >> fileOwner;
+			cin >> fileSize;
+			cin >> ext;
+
+			File file(fileName, fileOwner, fileSize, (Extension) ext);
+			folder.add(file);
+			iter--;
+		}
+		cin >> fileName;
+		cin >> fileOwner;
+		cin >> fileSize;
+		cin >> ext;
+
+		File file(fileName, fileOwner, fileSize, (Extension) ext);
+		folder.remove(file);
+		folder.print();
+	}
+	return 0;
+}
