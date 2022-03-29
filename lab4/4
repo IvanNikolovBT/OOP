@@ -1,0 +1,182 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+enum zanr {
+    action, comedy, drama
+};
+
+class Film {
+private:
+    char * name;
+    int space;
+    zanr genre;
+public:
+    Film () {
+        name = nullptr;
+        space = 0;
+        genre = (zanr)-1;
+    }
+    Film(char * fname, int fspace, zanr gn) {
+        genre = gn;
+        space = fspace;
+        name = new char[strlen(fname)+1];
+        strcpy(name, fname);
+    }
+    Film (const Film &film) {
+        genre = film.genre;
+        space = film.space;
+        name = new char[strlen(film.name)+1];
+        strcpy(name, film.name);
+    }
+    Film& operator=(const Film &film) {
+        if(this == &film) return * this;
+        genre = film.genre;
+        space = film.space;
+        char * temp = new char[strlen(film.name)+1];
+        strcpy(temp, film.name);
+        if(name != nullptr) delete [] name;
+        name = temp;
+        return * this;
+    }
+    ~Film () {
+        if(name != nullptr)
+        delete [] name;
+    }
+    void pecati () {
+        cout<<space<<"MB-\""<<name<<"\""<<endl;
+    }
+    friend class DVD;
+};
+
+class DVD {
+private:
+    Film films[5];
+    int n;
+    int discCapacity;
+public:
+    DVD(int memory) {
+        n = 0;
+        discCapacity = memory;
+    }
+    ~DVD () {}
+    Film getFilm(int i){
+            return films[i];
+        }
+    void dodadiFilm(Film f) {
+        int totalCapacity = 0;
+        for(int i=0; i<n; i++) {
+            totalCapacity += films[i].space;
+        }
+        if(n < 5 && totalCapacity + f.space <= discCapacity) {
+            films[n++] = f;
+            totalCapacity += f.space;
+        }
+        else return;
+    }
+    void pecatiFilmoviDrugZanr(zanr z) {
+        for(int i=0; i<n; i++) {
+            if(films[i].genre != z) films[i].pecati();
+        }
+    }
+    float procentNaMemorijaOdZanr(zanr z) {
+        int genreMemory = 0;
+        int totalMemory = 0;
+        for(int i=0; i<n; i++) {
+            if(films[i].genre == z) genreMemory += films[i].space;
+            totalMemory += films[i].space;
+        }
+        return ((float)genreMemory/totalMemory)*100;
+    }
+    int getBroj () {
+        return n;
+    }
+};
+
+int main() {
+    // se testira zadacata modularno
+    int testCase;
+    cin >> testCase;
+
+    int n, memorija, kojzanr;
+    char ime[50];
+
+    if (testCase == 1) {
+        cout << "===== Testiranje na klasata Film ======" << endl;
+        cin >> ime;
+        cin >> memorija;
+        cin >> kojzanr; //se vnesuva 0 za AKCIJA,1 za KOMEDIJA i 2 za DRAMA
+        Film f(ime, memorija, (zanr) kojzanr);
+        f.pecati();
+    } else if (testCase == 2) {
+        cout << "===== Testiranje na klasata DVD ======" << endl;
+        DVD omileno(50);
+        cin >> n;
+        for (int i = 0; i < n; i++) {
+            cin >> ime;
+            cin >> memorija;
+            cin >> kojzanr; //se vnesuva 0 za AKCIJA,1 za KOMEDIJA i 2 za DRAMA
+            Film f(ime, memorija, (zanr) kojzanr);
+            omileno.dodadiFilm(f);
+        }
+        for (int i = 0; i < n; i++)
+            (omileno.getFilm(i)).pecati();
+    } else if (testCase == 3) {
+        cout << "===== Testiranje na metodot dodadiFilm() od klasata DVD ======" << endl;
+        DVD omileno(50);
+        cin >> n;
+        for (int i = 0; i < n; i++) {
+            cin >> ime;
+            cin >> memorija;
+            cin >> kojzanr; //se vnesuva 0 za AKCIJA,1 za KOMEDIJA i 2 za DRAMA
+            Film f(ime, memorija, (zanr) kojzanr);
+            omileno.dodadiFilm(f);
+        }
+        for (int i = 0; i < omileno.getBroj(); i++)
+            (omileno.getFilm(i)).pecati();
+    } else if (testCase == 4) {
+        cout << "===== Testiranje na metodot pecatiFilmoviDrugZanr() od klasata DVD ======" << endl;
+        DVD omileno(50);
+        cin >> n;
+        for (int i = 0; i < n; i++) {
+            cin >> ime;
+            cin >> memorija;
+            cin >> kojzanr; //se vnesuva 0 za AKCIJA,1 za KOMEDIJA i 2 za DRAMA
+            Film f(ime, memorija, (zanr) kojzanr);
+            omileno.dodadiFilm(f);
+        }
+        cin >> kojzanr;
+        omileno.pecatiFilmoviDrugZanr((zanr) kojzanr);
+
+    } else if (testCase == 5) {
+        cout << "===== Testiranje na metodot pecatiFilmoviDrugZanr() od klasata DVD ======" << endl;
+        DVD omileno(50);
+        cin >> n;
+        for (int i = 0; i < n; i++) {
+            cin >> ime;
+            cin >> memorija;
+            cin >> kojzanr; //se vnesuva 0 za AKCIJA,1 za KOMEDIJA i 2 za DRAMA
+            Film f(ime, memorija, (zanr) kojzanr);
+            omileno.dodadiFilm(f);
+        }
+        cin >> kojzanr;
+        omileno.pecatiFilmoviDrugZanr((zanr) kojzanr);
+
+    } else if (testCase == 6){
+		cout<<"===== Testiranje na metodot procentNaMemorijaOdZanr() od klasata DVD =====" <<endl;
+		DVD omileno(40);
+		cin >> n;
+		for (int i = 0; i < n; i++) {
+            cin >> ime;
+            cin >> memorija;
+            cin >> kojzanr; //se vnesuva 0 za AKCIJA,1 za KOMEDIJA i 2 za DRAMA
+            Film f(ime, memorija, (zanr) kojzanr);
+            omileno.dodadiFilm(f);
+        }
+        cin >> kojzanr;
+        cout<<"Procent na filmovi od dadeniot zanr iznesuva: "<<omileno.procentNaMemorijaOdZanr((zanr) kojzanr)<<"%\n";
+		
+	}
+
+    return 0;
+}
