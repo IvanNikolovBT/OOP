@@ -1,0 +1,173 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class Pica {
+private:
+    char ime[15];
+    int cena;
+    char * sostojki;
+    int namaluvanje;
+public:
+    Pica() {
+        strcpy(ime,"");
+        cena = 0;
+        sostojki = nullptr;
+        namaluvanje = 0;
+    }
+    Pica(char *i, int c, char *s, int n) {
+        strcpy(ime, i);
+        cena = c;
+        namaluvanje = n;
+        sostojki = new char[strlen(s)+1];
+        strcpy(sostojki, s);
+    }
+    Pica(const Pica &p) {
+        strcpy(ime, p.ime);
+        cena = p.cena;
+        namaluvanje = p.namaluvanje;
+        sostojki = new char[strlen(p.sostojki)+1];
+        strcpy(sostojki, p.sostojki);
+    }
+    Pica& operator=(const Pica &p) {
+        if(this == &p) return * this;
+        strcpy(ime, p.ime);
+        cena = p.cena;
+        namaluvanje = p.namaluvanje;
+        char *temp = new char[strlen(p.sostojki)+1];
+        strcpy(temp, p.sostojki);
+        if(sostojki != nullptr) delete [] sostojki;
+        sostojki = temp;
+        return * this;
+    }
+    ~Pica() {
+        if(sostojki != nullptr) delete [] sostojki;
+    }
+    void pecati () {
+        cout<<ime<<" - "<<sostojki<<", "<<cena<<" "<<cena*((float)(100-namaluvanje)/100)<<endl;
+    }
+    bool istiSe(Pica p) {
+        return !strcmp(this->sostojki, p.sostojki);
+    }
+    bool isPromocija() {
+        return namaluvanje != 0;
+    }
+    friend class Picerija;
+};
+
+class Picerija {
+private:
+    char pIme[15];
+    Pica * pici;
+    int n;
+public:
+    Picerija(char * i ="") {
+        strcpy(pIme, i);
+        n = 0;
+    }
+    Picerija(char * i, Pica * p, int nn) {
+        strcpy(pIme, i);
+        n = nn;
+        pici = new Pica[n];
+        for(int i=0; i<n; i++) {
+            pici[i] = p[i];
+        }
+    }
+     Picerija(const Picerija &p) {
+        strcpy(pIme, p.pIme);
+        n = p.n;
+        pici = new Pica[p.n];
+        for(int i=0; i<p.n; i++) {
+            pici[i] = p.pici[i];
+        }
+    }
+    Picerija& operator=(const Picerija &p) {
+        if(this == &p) return * this;
+        strcpy(pIme, p.pIme);
+        n = p.n;
+        if(pici != nullptr) delete [] pici;
+        pici = new Pica[p.n];
+        for(int i=0; i<p.n; i++) {
+            pici[i] = p.pici[i];
+        }
+        return * this;
+    }
+    void dodadi(Pica p) {
+        for(int i=0;i<n;i++){
+                if(pici[i].istiSe(p)) return;
+        }
+        Pica *temp = new Pica[n+1];
+        for(int i=0; i<n; i++) {
+                temp[i] = pici[i];
+        }
+        if(pici != nullptr) delete [] pici;
+        temp[n] = p;
+        pici = temp;
+        n++;
+    }
+    ~Picerija() {
+        if(pici != nullptr) delete [] pici;
+    }
+    void setIme(char ii[15]) {
+        strcpy(pIme, ii);
+    }
+    char * getIme() {
+        return pIme;
+    }
+    void piciNaPromocija() {
+        for(int i=0; i<n; i++) {
+            if(pici[i].isPromocija()) {
+                pici[i].pecati();
+            }
+        }
+    }
+};
+int main () {
+
+    int n;
+    char ime[15];
+    cin >> ime;
+    cin >> n;
+
+    Picerija p1(ime);
+    for(int i = 0; i < n; i++){
+        char imp[100];
+        cin.get();
+        cin.getline(imp,100);
+        int cena;
+        cin >> cena;
+        char sostojki[100];
+        cin.get();
+        cin.getline(sostojki,100);
+        int popust;
+        cin >> popust;
+        Pica p(imp,cena,sostojki,popust);
+        p1.dodadi(p);
+    }
+
+    Picerija p2 = p1;
+    cin >> ime;
+    p2.setIme(ime);
+    char imp[100];
+    cin.get();
+    cin.getline(imp,100);
+    int cena;
+    cin >> cena;
+    char sostojki[100];
+    cin.get();
+    cin.getline(sostojki,100);
+    int popust;
+    cin >> popust;
+    Pica p(imp,cena,sostojki,popust);
+    p2.dodadi(p);
+
+    cout<<p1.getIme()<<endl;
+    cout<<"Pici na promocija:"<<endl;
+    p1.piciNaPromocija();
+
+    cout<<p2.getIme()<<endl;
+    cout<<"Pici na promocija:"<<endl;
+    p2.piciNaPromocija();
+
+	return 0;
+}
