@@ -1,0 +1,319 @@
+#include <iostream>
+
+using namespace std;
+
+class Complex{
+private:
+    float a,b;
+public:
+    Complex(float a = 0, float b = 0)
+    {
+        this->a = a;
+        this->b = b;
+    }
+    Complex operator+(Complex &c)
+    {
+        Complex tmp(a + c.a,b + c.b);
+        return tmp;
+    }
+    Complex operator*(Complex &c)
+    {
+        Complex tmp(a * c.a - b * c.b,b * c.a - a * c.b);
+        return tmp;
+    }
+    Complex operator/(Complex & c)
+    {
+        float m = c.a * c.a + c.b * c.b;
+        float r = (a * c.a - b*c.b)/m;
+        Complex tmp(r, (b*c.a + b*c.b)/m);
+        return tmp;
+    }
+    Complex &operator+=(Complex c)
+    {
+        a += c.a;
+        b += c.b;
+        return *this;
+    }
+    Complex &operator-=(Complex c)
+    {
+        a -= c.a;
+        b -= c.b;
+        return *this;
+    }
+
+    friend ostream & operator<<(ostream & out, Complex & c)
+    {
+        out<<c.a;
+        if(c.b>=0)
+        {
+            out<<"+";
+        }
+        out<<c.b<<"j";
+        return out;
+    }
+    Complex & operator*=(Complex &c)
+    {
+        a = a * c.a - b * c.b;
+        b = b * c.a - a * c.b;
+        return *this;
+    }
+    Complex & operator/=(Complex &c)
+    {
+        *this = *this/c;
+        return *this;
+    }
+    bool operator==(Complex &c)
+    {
+        if(a==c.a && b == c.b)
+        {
+            return true;
+        }
+        else {
+            return false;
+            }
+    }
+    friend Complex operator-(Complex c1, Complex c2);
+    friend Complex operator+(float n, Complex c);
+    friend Complex operator+(Complex c,float n);
+
+};
+
+Complex operator-(Complex c1, Complex c2)
+{
+    Complex tmp(c1.a - c2.a, c1.b - c2.b);
+        return tmp;
+}
+
+Complex operator+(float n, Complex c)
+{
+    Complex tmp(c.a + n, c.b);
+    return tmp;
+}
+
+Complex operator+(Complex c,float n)
+{
+    Complex tmp(c.a + n, c.b);
+    return tmp;
+}
+
+int main()
+{
+    Complex c1(2, -6);
+  Complex c2(3, 5);
+  Complex c = c1 + c2;
+  cout << c1 << " + " << c2 << " = " << c << endl;
+  c = c1 - c2;
+  cout << c1 << " - " << c2 << " = " << c << endl;
+  c = c1 * c2;
+  cout << c1 << " * " << c2 << " = " << c << endl;
+  c = c1 / c2;
+  cout << c1 << " / " << c2 << " = " << c << endl;
+  if (c == c1) {
+  cout << "Numbers are equal" << endl;
+  }
+  c = c1 + 2;
+  cout << c1 << " + " << 2 << " = " << c << endl;
+  c = 2 + c1;
+  cout << 2 << " + " << c1 << " = " << c << endl;
+
+}
+
+
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class Ucenik{
+private:
+    char * ime;
+    float prosek;
+    int godina;
+public:
+    Ucenik(char * ime = "", float prosek = 0, int godina = 0)
+    {
+        this->ime = new char[strlen(ime)+1];
+        strcpy(this->ime,ime);
+        this->prosek = prosek;
+        this->godina = godina;
+    }
+    ~Ucenik()
+    {
+        delete [] ime;
+    }
+    Ucenik(const Ucenik & u)
+    {
+        ime = new char[strlen(u.ime)+1];
+        strcpy(ime,u.ime);
+        prosek = u.prosek;
+        godina = u.godina;
+    }
+    Ucenik & operator=(const Ucenik & u)
+    {
+        if(this!=&u){
+            delete [] ime;
+            ime = new char[strlen(u.ime)+1];
+            strcpy(ime,u.ime);
+            prosek = u.prosek;
+            godina = u.godina;
+        }
+        return *this;
+    }
+    friend ostream & operator<<(ostream & out, Ucenik &u)
+    {
+        out<<"Ime: "<<u.ime<<", godina: "<<u.godina<<", prosek: "
+        <<u.prosek<<endl;
+        return out;
+    }
+    Ucenik& operator++()
+    {
+        //prefix operator ++;
+        godina++;
+        return *this;
+    }
+    Ucenik operator++(int)
+    {
+        //postfix operator ++
+        Ucenik temp(*this);
+        godina++;
+        return temp;
+    }
+    float getProsek()
+    {
+        return prosek;
+    }
+    friend bool operator>(Ucenik & u1, Ucenik & u2)
+    {
+        if(u1.prosek>u2.prosek)
+        {
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+};
+
+class Paralelka{
+private:
+    Ucenik * ucenici;
+    int n;
+public:
+    Paralelka(Ucenik * u = 0, int nn = 0)
+    {
+        n = nn;
+        ucenici = new Ucenik[n];
+        for(int i=0;i<n;i++)
+        {
+            ucenici[i] = u[i];
+        }
+    }
+    ~Paralelka()
+    {
+        delete [] ucenici;
+    }
+    Paralelka(const Paralelka & p)
+    {
+        n = p.n;
+        ucenici = new Ucenik[p.n];
+        for(int i=0;i<n;i++)
+        {
+            ucenici[i] = p.ucenici[i];
+        }
+    }
+    Paralelka & operator=(const Paralelka & p)
+    {
+        if(this!=&p){
+             n = p.n;
+             delete [] ucenici;
+            ucenici = new Ucenik[p.n];
+            for(int i=0;i<n;i++)
+            {
+                ucenici[i] = p.ucenici[i];
+            }
+        }
+        return *this;
+    }
+    Paralelka & operator+=(Ucenik nov)
+    {
+        Ucenik * tmp = new Ucenik[n+1];
+        for(int i=0;i<n;i++)
+        {
+            tmp[i] = ucenici[i];
+        }
+        tmp[n++] = nov;
+        delete [] ucenici;
+        ucenici = tmp;
+        return *this;
+    }
+    Paralelka & operator++()
+    {
+        for(int i=0;i<n;i++)
+        {
+            ucenici[i]++;
+        }
+        return *this;
+    }
+    Paralelka & operator++(int)
+    {
+        Paralelka temp(*this);
+        for(int i=0;i<n;i++)
+        {
+            ucenici[i]++;
+        }
+        return temp;
+    }
+    friend ostream& operator<<(ostream & out, Paralelka & p)
+    {
+        for(int i=0;i<p.n;i++)
+        {
+            out<<p.ucenici[i];
+        }
+        return out;
+    }
+    void nagradi()
+    {
+        for(int i=0;i<n;i++)
+        {
+            if(ucenici[i].getProsek()==10.0)
+            {
+                cout<<ucenici[i];
+            }
+        }
+    }
+    void najvisokProsek()
+    {
+        Ucenik tmpU = ucenici[0];
+        for(int i=0;i<n;i++)
+        {
+            if(ucenici[i]>tmpU)
+            {
+                tmpU = ucenici[i];
+            }
+        }
+        cout<<"Najvisok prosek: "<<tmpU.getProsek()<<endl;
+    }
+};
+
+
+int main()
+{
+  Ucenik u1("Martina Martinovska", 9.5, 3);
+  Ucenik u2("Darko Darkoski", 7.3, 2);
+  Ucenik u3("Angela Angelovska", 10, 3);
+  Paralelka p;
+  p += u1;
+  p += u2;
+  p += u3;
+  cout << p;
+  cout << "Nagradeni:" << endl;
+  p.nagradi();
+  cout << endl;
+  p.najvisokProsek();
+  cout << endl;
+  u2++;
+  cout << p;
+  cout << endl;
+  p++;
+  cout << p;
+
+}
