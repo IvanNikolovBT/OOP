@@ -1,0 +1,87 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class Matrica {
+private:
+    float matrica[10][10];
+    int broj;
+public:
+    Matrica() {
+        broj = 0;
+    }
+    Matrica(int n) {
+        broj = 10;
+        for(int i=0; i<broj; i++) {
+            for(int j=0; j<broj; j++) {
+                matrica[i][j] = n;
+            }
+        }
+    }
+    Matrica &operator+(const Matrica &mx) {
+        for(int i=0; i<broj; i++) {
+            for(int j=0; j<broj; j++) {
+                matrica[i][j]+=mx.matrica[i][j];
+            }
+        }
+        return * this;
+    }
+    Matrica &operator-(const Matrica &mx) {
+        for(int i=0; i<broj; i++) {
+            for(int j=0; j<broj; j++) {
+                matrica[i][j]-=mx.matrica[i][j];
+            }
+        }
+        return * this;
+    }
+    Matrica &operator*(const Matrica &mx) {
+        float tmp[broj][broj];
+        for(int i=0;i<broj;i++){
+                for(int j=0;j<broj;j++){
+                    int zbir = 0;
+                    for(int k=0;k<broj;k++){
+                        zbir+=(this->matrica[i][k]*mx.matrica[k][j]);
+                    }
+                    tmp[i][j]=zbir;
+                }
+            }
+            for(int i=0;i<broj;i++){
+                for(int j=0;j<broj;j++){
+                    this->matrica[i][j]=tmp[i][j];
+                }
+            }
+            return *this;
+    }
+    friend ostream &operator<<(ostream &out, Matrica &mx) {
+        for(int i=0; i<mx.broj; i++) {
+            for(int j=0; j<mx.broj; j++) {
+                out<<mx.matrica[i][j]<<" ";
+            }
+            out<<endl;
+        }
+        return out;
+    }
+    friend istream &operator>>(istream &input, Matrica &mx) {
+        int br;
+        input>>br;
+        input>>br;
+        mx.broj = br;
+        float tmp;
+        for(int i=0; i<mx.broj; i++) {
+            for(int j=0; j<mx.broj; j++) {
+                input>>tmp;
+                mx.matrica[i][j]=tmp;
+            }
+        }
+        return input;
+    }
+};
+
+int main()
+{
+    Matrica A,B,C;
+    cin>>A>>B>>C;
+    Matrica D=B*C;
+    Matrica R=A-D+2;
+    cout<<R;
+}
