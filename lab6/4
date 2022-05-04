@@ -1,0 +1,91 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class Nedviznina {
+protected:
+    char * adresa;
+    int kvadratura;
+    int cenak;
+public:
+    Nedviznina() {
+        adresa = new char[0];
+        kvadratura = 0;
+        cenak = 0;
+    }
+    Nedviznina(char * adresa, int kvadratura, int cena) {
+        this->kvadratura = kvadratura;
+        this->cenak = cenak;
+        this->adresa = new char[strlen(adresa)+1];
+        strcpy(this->adresa, adresa);
+    }
+    Nedviznina(const Nedviznina &n) {
+        kvadratura = n.kvadratura;
+        cenak = n.cenak;
+        adresa = new char[strlen(n.adresa)+1];
+        strcpy(adresa, n.adresa);
+    }
+    Nedviznina& operator=(const Nedviznina &n) {
+        if(this != &n) {
+            kvadratura = n.kvadratura;
+            delete [] adresa;
+            cenak = n.cenak;
+            adresa = new char[strlen(n.adresa)+1];
+            strcpy(adresa, n.adresa);
+        }
+        return * this;
+    }
+    ~Nedviznina() {
+        delete [] adresa;
+    }
+    int cena() {
+        return kvadratura * cenak;
+    }
+    void pecati() {
+        cout<<adresa<<", Kvadratura: "<<kvadratura<<", Cena po Kvadrat: "<<cenak<<endl;
+    }
+    double danokNaImot() {
+        return cena()*0.05;
+    }
+    friend istream &operator>>(istream &in,Nedviznina &n)
+    {
+        in>>n.adresa>>n.kvadratura>>n.cenak;
+        return in;
+    }
+    char * getAdresa() {
+        return adresa;
+    }
+};
+
+class Vila : public Nedviznina {
+private:
+    int danok;
+public:
+    void pecati()
+    {
+        cout<<adresa<<", Kvadratura: "<<kvadratura<<", Cena po Kvadrat: "<<cenak<<", Danok na luksuz: "<<danok<<endl;
+    }
+    double danokNaImot() {
+        return (cena() * ((danok+5)/100.0));
+    }
+    friend istream &operator>>(istream &in, Vila &v)
+    {
+        in>>v.adresa>>v.kvadratura>>v.cenak>>v.danok;
+        return in;
+    }
+    char * getAdresa() {
+        return adresa;
+    }
+};
+
+int main(){
+    Nedviznina n;
+    Vila v;
+    cin>>n;
+    cin>>v;
+    n.pecati();
+    cout<<"Danok za: "<<n.getAdresa()<<", e: "<<n.danokNaImot()<<endl;
+    v.pecati();
+    cout<<"Danok za: "<<v.getAdresa()<<", e: "<<v.danokNaImot()<<endl;
+    return 0;
+}
