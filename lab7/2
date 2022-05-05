@@ -1,0 +1,209 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class Number {
+public:
+    virtual double doubleValue() = 0;
+    virtual int intValue() = 0;
+    virtual void print() = 0;
+};
+
+bool operator==(Number * n1, Number & n2) {
+    if(n1->doubleValue() == n2.doubleValue() && n1->intValue() == n2.intValue())
+        return true;
+    else
+        return false;
+}
+
+class Integer : public Number {
+private:
+    int broj;
+public:
+    Integer(int broj = 0) {
+        this->broj = broj;
+    }
+    double doubleValue () {
+        return (double)broj;
+    }
+    int intValue() {
+        return broj;
+    }
+    void print()
+    {
+        cout<<"Integer: "<<broj<<endl;
+    }
+};
+
+class Double : public Number {
+private:
+    double broj;
+public:
+    Double(double broj=0) {
+        this->broj = broj;
+    }
+    double doubleValue () {
+        return broj;
+    }
+    int intValue() {
+        return (int)broj;
+    }
+    void print()
+    {
+        cout<<"Double: "<<(double)broj<<endl;
+    }
+};
+
+class Numbers {
+private:
+    int n;
+    Number ** nums;
+    void copy(const Numbers &num)
+    {
+        this->n=num.n;
+        this->nums=new Number*[n];
+        for(int i=0;i<n;i++)
+        {
+            nums[i]=num.nums[i];
+        }
+    }
+public:
+    Numbers() {
+        n = 0;
+        nums = new Number * [0];
+    }
+    Numbers(const Numbers &b) {
+        copy(b);
+    }
+    Numbers& operator=(const Numbers &b) {
+        if(this != &b) {
+            delete [] nums;
+            copy(b);
+        }
+        return * this;
+    }
+    ~Numbers() {
+        delete [] nums;
+    }
+     Numbers&operator+=(Number *num)
+    {
+        for(int i=0;i<n;i++)
+        {
+            if(nums[i] == *num)
+                return *this;
+        }
+        Number **temp=new Number*[n+1];
+        for(int i=0;i<n;i++)
+        {
+            temp[i]=nums[i];
+        }
+        temp[n++]=num;
+        delete[]nums;
+        nums=temp;
+        return *this;
+    }
+    void statistics() {
+        double suma = 0;
+        for(int i=0; i<n; i++) {
+            suma += nums[i]->doubleValue();
+        }
+        int countOfInteger=0,countOfDouble=0,sumInt=0;
+        double sumDouble=0;
+        for(int i=0;i<n;i++)
+        {
+            Integer *in=dynamic_cast<Integer *>(nums[i]);
+            if(in != 0)
+            {
+                countOfInteger++;
+                sumInt+=nums[i]->intValue();
+            }
+            Double *d=dynamic_cast<Double *>(nums[i]);
+            if(d != 0)
+            {
+                countOfDouble++;
+                sumDouble+=nums[i]->doubleValue();
+            }
+        }
+        cout<<"Count of numbers: "<<this->n<<endl;
+        cout<<"Sum of all numbers: "<<suma<<endl;
+        cout<<"Count of integer numbers: "<<countOfInteger<<endl;
+        cout<<"Sum of integer numbers: "<<sumInt<<endl;
+        cout<<"Count of double numbers: "<<countOfDouble<<endl;
+        cout<<"Sum of double numbers: "<<sumDouble<<endl;
+    }
+        void integersLessThan(Integer b)
+    {
+        int count=0;
+        int max=b.intValue();
+        for(int i=0;i<n;i++)
+        {
+            Integer *in=dynamic_cast<Integer *>(nums[i]);
+            if(in)
+            {
+                if(nums[i]->intValue() < max)
+                {
+                    nums[i]->print();
+                    count++;
+                }
+            }
+        }
+        if(count == 0)
+            cout<<"None"<<endl;
+    }
+    void doublesBiggerThan(Double b)
+    {
+        int count=0;
+        int min=b.doubleValue();
+        for(int i=0;i<n;i++)
+        {
+            Double *d=dynamic_cast<Double *>(nums[i]);
+            if(d)
+            {
+                if(nums[i]->doubleValue()>min)
+                {
+                    nums[i]->print();
+                    count++;
+                }
+            }
+        }
+        if(count == 0)
+        {
+            cout<<"None"<<endl;
+        }
+    }
+};
+
+int main() {
+	
+	int n;
+	cin>>n;
+	Numbers numbers;
+	for (int i=0;i<n;i++){
+		int type;
+		double number;
+		cin>>type>>number;
+		if (type==0){//Integer object
+			Integer * integer = new Integer((int) number);
+			numbers+=integer;
+		}
+		else {
+			Double * doublee = new Double(number);
+			numbers+=doublee;
+		}
+	}
+	
+	int lessThan;
+	double biggerThan;
+	
+	cin>>lessThan;
+	cin>>biggerThan;		
+	
+	cout<<"STATISTICS FOR THE NUMBERS\n";
+	numbers.statistics();
+	cout<<"INTEGER NUMBERS LESS THAN "<<lessThan<<endl;
+	numbers.integersLessThan(Integer(lessThan));
+	cout<<"DOUBLE NUMBERS BIGGER THAN "<<biggerThan<<endl;
+	numbers.doublesBiggerThan(Double(biggerThan));
+	
+	return 0;
+}
