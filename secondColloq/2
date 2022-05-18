@@ -1,0 +1,383 @@
+#include<iostream>
+#include<string.h>
+using namespace std;
+ 
+ 
+class InvalidTimeException{
+public:
+    InvalidTimeException(){}
+    void print(){
+    cout<<"Vremeto ne e validno"<<endl;
+    }
+};
+ 
+class Trka{
+protected:
+    char grad[50];
+    int godina;
+    int mesec;
+    float najdobroVreme;
+    float dolzina;
+public:
+    Trka(char * grad = "", int godina = 0, int mesec = 0,
+         float najdobroVreme = 0, float dolzina = 0)
+         {
+             strcpy(this->grad,grad);
+             this->godina = godina;
+             this->mesec = mesec;
+             this->najdobroVreme = najdobroVreme;
+             this->dolzina = dolzina;
+         }
+ 
+         virtual float tezina()
+         {
+            return najdobroVreme/dolzina*1.0;
+         }
+ 
+         friend ostream & operator<<(ostream & out, Trka & t)
+         {
+             out<<t.grad<<" "<<t.mesec<<"."<<t.godina<<" "<<t.tezina()<<endl;
+             return out;
+         }
+};
+ 
+class MotoGPTrka: public Trka{
+private:
+    int brojKrugovi;
+    float * najdobriVreminja;
+    int n;
+    static float koeficient;
+public:
+ 
+ 
+    static void setKoeficient(float k)
+    {
+        koeficient = k;
+    }
+    MotoGPTrka(char * grad = "", int godina = 0, int mesec = 0,
+         float najdobroVreme = 0, float dolzina = 0,
+         float * najdobriVreminja = 0, int n = 0, int brojKrugovi = 0)
+         :Trka(grad,godina,mesec,najdobroVreme,dolzina)
+         {
+             this->n = n;
+             this->najdobriVreminja = new float[n];
+             for(int i=0;i<n;i++)
+             {
+                 this->najdobriVreminja[i] = najdobriVreminja[i];
+             }
+             this->brojKrugovi = brojKrugovi;
+         }
+         MotoGPTrka(const MotoGPTrka& mp)
+         {
+             strcpy(grad,mp.grad);
+             godina = mp.godina;
+             mesec = mp.mesec;
+             najdobroVreme = mp.najdobroVreme;
+             dolzina = mp.dolzina;
+             n = mp.n;
+             najdobriVreminja = new float[mp.n];
+             for(int i=0;i<n;i++)
+             {
+                 najdobriVreminja[i] = mp.najdobriVreminja[i];
+             }
+             brojKrugovi = mp.brojKrugovi;
+         }
+         MotoGPTrka & operator=(const MotoGPTrka & mp)
+         {
+             if(&mp!=this){
+              strcpy(grad,mp.grad);
+             godina = mp.godina;
+             mesec = mp.mesec;
+             najdobroVreme = mp.najdobroVreme;
+             dolzina = mp.dolzina;
+             n = mp.n;
+             delete [] najdobriVreminja;
+             najdobriVreminja = new float[mp.n];
+             for(int i=0;i<n;i++)
+             {
+                 najdobriVreminja[i] = mp.najdobriVreminja[i];
+             }
+             brojKrugovi = mp.brojKrugovi;
+             }
+             return *this;
+         }
+         ~MotoGPTrka(){
+         delete [] najdobriVreminja;
+         }
+         MotoGPTrka & operator+=(float vreme)
+         {
+             if(vreme<9.5)
+             {
+                 throw InvalidTimeException();
+             }
+             float * tmp = new float[n+1];
+             for(int i =0;i<n;i++)
+             {
+                 tmp[i] = najdobriVreminja[i];
+             }
+             tmp[n++] = vreme;
+             delete [] najdobriVreminja;
+             najdobriVreminja = tmp;
+             return *this;
+         }
+         float tezina(){
+            float suma = Trka::tezina();
+            float sumaProsek = 0;
+            for(int i=0;i<n;i++)
+            {
+                sumaProsek+=najdobriVreminja[i];
+            }
+            sumaProsek = sumaProsek/n*1.0;
+            suma+= sumaProsek * koeficient;
+            if(brojKrugovi>22)
+            {
+                suma*=1.2;
+            }
+            return suma;
+         }
+         MotoGPTrka & operator++(int){
+            MotoGPTrka dr(*this);
+            brojKrugovi++;
+            return dr;
+         }
+         int getNumberLaps()
+         {
+             return brojKrugovi;
+         }
+         void setNumberLaps(int nov)
+         {
+             brojKrugovi = nov;
+         }
+};
+ 
+float MotoGPTrka::koeficient = 0.4;
+ 
+int main(){
+	int testCase;
+	cin >> testCase;
+    char city[50];
+	int year;
+	int month;
+	float bestTime;
+	float length;
+	float bestTimes[50];
+	int n;
+	int m;
+	int izbor;
+	int numberLaps;
+ 
+	if (testCase == 1){
+		cout << "===== Testiranje na klasite ======" << endl;
+		cin >> city;
+		cin >> year;
+		cin >> month;
+		cin >> bestTime;
+		cin>>length;
+		Trka t(city, year, month, bestTime, length);
+		cout<<t;
+		cin >> city;
+		cin >> year;
+		cin >> month;
+		cin >> bestTime;
+		cin>>length;
+        cin>>numberLaps;
+		cin>>n;
+		for (int j = 0; j < n; j++)
+			cin >> bestTimes[j];
+		MotoGPTrka mgt(city, year, month, bestTime, length,bestTimes, n, numberLaps);
+		cout << mgt;
+		MotoGPTrka mgt2;
+		}
+	if (testCase == 2){
+		cout << "===== Testiranje na operatorot += ======" << endl;
+		Trka **niza;
+		cin >> m;
+		niza = new Trka *[m];
+		for (int i = 0; i<m; i++){
+			cin >> izbor;
+			cin >> city;
+		cin >> year;
+		cin >> month;
+		cin >> bestTime;
+        cin >>length;
+			if (izbor == 1){
+				niza[i] = new Trka(city, year, month, bestTime, length);
+			}
+			else{
+                cin>>numberLaps;
+                        		cin>>n;
+		for (int j = 0; j < n; j++)
+			cin >> bestTimes[j];
+				niza[i] = new MotoGPTrka(city, year, month, bestTime, length,bestTimes, n, numberLaps);
+			}
+		}
+		// pecatenje na site Trki
+		cout << "\nLista na site Trki:\n";
+		for (int i = 0; i < m; i++)
+			cout << *niza[i];
+ 
+		// dodavanje novo najdobro vreme za prvata MotoGPTrka
+		float best;
+		cin >> best;
+		int flag = 1;
+		for (int i = 0; i < m; i++){
+				MotoGPTrka* nn = dynamic_cast<MotoGPTrka*>(niza[i]);
+				if (nn != 0){
+					flag = 0;
+					(*nn) += best;
+					break;
+				}
+		}
+ 
+ 
+		// pecatenje na site Trki
+		cout << "\nLista na site Trki:\n";
+		for (int i = 0; i < m; i++)
+			cout << *niza[i];
+	}
+	if (testCase == 3){
+		cout << "===== Testiranje na isklucoci ======" << endl;
+		cin >> city;
+		cin >> year;
+		cin >> month;
+		cin >> bestTime;
+		cin>>length;
+        cin>>numberLaps;
+		MotoGPTrka mgt(city, year, month, bestTime, length);
+		mgt.setNumberLaps(numberLaps);
+		float vreme1,vreme2;
+        cin>>vreme1>>vreme2;
+        try{
+        mgt+=vreme1;}
+        catch(InvalidTimeException & e){
+        e.print();
+        }
+         try{
+ 
+        mgt+=vreme2;
+         }
+        catch(InvalidTimeException & e){
+        e.print();
+        }
+ 
+ 
+        cout<<mgt;
+	}
+	if (testCase == 4){
+		cout <<"===== Testiranje na operator++ ======"<<endl;
+		cin >> city;
+		cin >> year;
+		cin >> month;
+		cin >> bestTime;
+		cin>>length;
+        cin>>numberLaps;
+		cin>>n;
+		for (int j = 0; j < n; j++)
+			cin >> bestTimes[j];
+ 
+ 
+		MotoGPTrka mgt(city, year, month, bestTime, length,bestTimes,n,numberLaps);
+		float v,koef2;
+        cout<<(mgt++).getNumberLaps()<<endl;
+        cout<<mgt;
+        mgt++;
+        cout<<mgt;
+	}
+	if (testCase == 5){
+		cout << "===== Testiranje na static clenovi ======" << endl;
+		Trka **niza;
+		cin >> m;
+		niza = new Trka *[m];
+		for (int i = 0; i<m; i++){
+			cin >> izbor;
+			cin >> city;
+		cin >> year;
+		cin >> month;
+		cin >> bestTime;
+        cin >>length;
+			if (izbor == 1){
+				niza[i] = new Trka(city, year, month, bestTime, length);
+			}
+			else{
+                cin>>numberLaps;
+                        		cin>>n;
+		for (int j = 0; j < n; j++)
+			cin >> bestTimes[j];
+				niza[i] = new MotoGPTrka(city, year, month, bestTime, length,bestTimes, n, numberLaps);
+			}
+		}
+		// pecatenje na site Trki
+		cout << "\nLista na site Trki:\n";
+		for (int i = 0; i < m; i++)
+			cout << *niza[i];
+ 
+        MotoGPTrka::setKoeficient(0.7);
+		// pecatenje na site Trki
+		cout << "\nLista na site Trki:\n";
+		for (int i = 0; i < m; i++)
+			cout << *niza[i];
+	}
+ 
+		if (testCase == 6){
+		cout << "===== Testiranje na kompletna funkcionalnost ======" << endl;
+		Trka **niza;
+		cin >> m;
+		niza = new Trka *[m];
+		for (int i = 0; i<m; i++){
+			cin >> izbor;
+			cin >> city;
+		cin >> year;
+		cin >> month;
+		cin >> bestTime;
+        cin >>length;
+			if (izbor == 1){
+				niza[i] = new Trka(city, year, month, bestTime, length);
+			}
+			else{
+                cin>>numberLaps;
+                        		cin>>n;
+		for (int j = 0; j < n; j++)
+			cin >> bestTimes[j];
+				niza[i] = new MotoGPTrka(city, year, month, bestTime, length,bestTimes, n, numberLaps);
+			}
+		}
+		// pecatenje na site Trki
+		cout << "\nLista na site Trki:\n";
+		for (int i = 0; i < m; i++)
+			cout << *niza[i];
+        float newCoef;
+        cin>>newCoef;
+        MotoGPTrka::setKoeficient(newCoef);
+        	cout << "\nLista na site Trki:\n";
+		for (int i = 0; i < m; i++)
+			cout << *niza[i];
+		// pecatenje na site Trki
+		float newBest;
+		cin>>newBest;
+		int flag = 1;
+		for (int i = 0; i < m; i++){
+            MotoGPTrka * pok= dynamic_cast<MotoGPTrka *>(niza[i]);
+            try{
+            if(pok!=0)
+            {
+               (*pok)++;
+                (*pok)+=newBest;
+                if(flag==1)
+                {
+                    flag = 0;
+                    *pok+=1.4;
+                }
+            }
+            }
+            catch(InvalidTimeException e)
+            {
+              e.print();
+            }
+		}
+        cout << "\nLista na site Trki:\n";
+		for (int i = 0; i < m; i++)
+        cout << *niza[i];
+	}
+ 
+	return 0;
+}
