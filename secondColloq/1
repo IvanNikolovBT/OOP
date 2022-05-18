@@ -1,0 +1,370 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+ 
+class MonthlyInvoice {
+protected:
+    char username[101];
+    int userNum;
+    float basic_price;
+    int spent_gigabytes;
+ 
+public:
+    MonthlyInvoice(const char* user="", int userNo=0, float bp=0, int sg=0){
+        strncpy(username, user,100);
+        username[100] = '\0';
+        userNum = userNo;
+        basic_price = bp;
+        spent_gigabytes = sg;
+    }
+ 
+    virtual float total_price() = 0;
+ 
+    virtual ~MonthlyInvoice(){};
+ 
+    bool operator > (MonthlyInvoice& other){
+        return (this->total_price() > other.total_price());
+    }
+};
+ 
+class BusinessInvoice : public MonthlyInvoice{
+protected:
+    bool line_type;
+    int included_gigabytes;
+ 
+public:
+    BusinessInvoice(char* user, int userNo, float bp, int sg, bool lt, int ig): MonthlyInvoice(user, userNo, bp, sg){
+        line_type = lt;
+        included_gigabytes = ig;
+    }
+ 
+    float total_price(){
+        float coef = 1.0f;
+        if (line_type){
+            coef = 1.5f;
+        }
+ 
+        int gigabytes = spent_gigabytes - included_gigabytes;
+        if (gigabytes < 1){
+            gigabytes = 0;
+        }
+ 
+        return basic_price*coef + gigabytes*100;
+    }
+ 
+    BusinessInvoice& operator++(int){
+        ++spent_gigabytes;
+ 
+        return *this;
+    }
+ 
+    void setLinkType(bool type){
+        line_type = type;
+    }
+ 
+    friend ostream& operator<<(ostream& out, BusinessInvoice& bi){
+        out<<bi.userNum << " - " << bi.username <<", "<< bi.basic_price <<"\n";
+ 
+        if (bi.line_type){
+            out<<"optical link, ";
+        }
+        else {
+            out<<"cable link, ";
+        }
+        int gigabytes = bi.spent_gigabytes - bi.included_gigabytes;
+        if (gigabytes < 1){
+            gigabytes = 0;
+        }
+        out << gigabytes << endl;
+ 
+        return out;
+    }
+ 
+};
+ 
+class PrivateInvoice : public MonthlyInvoice{
+protected:
+    int * movies;
+    int num_movies;
+ 
+public:
+    PrivateInvoice(char* user, int userNo, float bp, int sg): MonthlyInvoice(user, userNo, bp, sg){
+ 
+        num_movies = 0;
+        movies = NULL;
+    }
+ 
+    void _copy(const PrivateInvoice& orig){
+        strcpy(username, orig.username);
+        userNum = orig.userNum;
+        basic_price = orig.basic_price;
+        spent_gigabytes = orig.spent_gigabytes;
+ 
+        num_movies = orig.num_movies;
+        movies = new int[num_movies];
+ 
+        for (int i=0; i<num_movies; ++i){
+            movies[i] = orig.movies[i];
+        }
+    }
+ 
+    PrivateInvoice(const PrivateInvoice& orig){
+        _copy(orig);
+    }
+ 
+    PrivateInvoice& operator=(const PrivateInvoice& orig){
+        if (this != &orig) {
+            delete[] movies;
+            _copy(orig);
+        }
+        return *this;
+    }
+ 
+    ~PrivateInvoice(){
+        delete [] movies;
+    }
+ 
+    int video_gb(){
+        int video_gb = 0;
+        for (int i=0; i<num_movies; ++i){
+            video_gb += movies[i];
+        }
+        return video_gb;
+    }
+ 
+    float total_price(){
+ 
+        return basic_price + spent_gigabytes * 50 + video_gb() * 10;
+ 
+    }
+ 
+    PrivateInvoice& operator++(int){
+        spent_gigabytes++;
+        return *this;
+    }
+ 
+ 
+ 
+    PrivateInvoice& operator+=(int movie_size){
+        int *new_movies = new int[num_movies+1];
+ 
+        for (int i=0; i<num_movies; ++i){
+            new_movies[i] = movies[i];
+        }
+        new_movies[num_movies] = movie_size;
+ 
+        num_movies++;
+ 
+        delete [] movies;
+ 
+        movies = new_movies;
+ 
+        return *this;
+    }
+ 
+    int operator[] (int index){
+        if ((index < 0) || (index >= num_movies)) {
+            return -1;
+        }
+ 
+        return movies[index];
+    }
+ 
+    friend ostream& operator<<(ostream& out, PrivateInvoice& pi){
+        out<<pi.userNum << " - " << pi.username <<", "<< pi.basic_price <<"\n";
+        out << pi.spent_gigabytes<<"\n";
+        out << pi.num_movies<<", " << pi.video_gb() << endl;
+ 
+        return out;
+    }
+ 
+    int getMoviesNo() {
+        return this->num_movies;
+    }
+};
+ 
+MonthlyInvoice& biggestInvoice(MonthlyInvoice** mi, int n){
+    int max_index = 0;
+    for (int i=0; i<n; ++i){
+        if ((*mi[i]) > (*mi[max_index])){
+            max_index = i;
+        }
+    }
+    return *mi[max_index];
+};
+ 
+int main(){
+    int test_case;
+    char username[101];
+    int userNumber;
+    float basic_price;
+    int spent_gigabytes;
+    bool optical;
+    int free_gigabytes;
+    int num_inc;
+ 
+    cin>>test_case;
+    if (test_case == 1){
+        // Test Case Business Invoice - Constructor, operator <<
+        cin>>username>>userNumber>>basic_price>>spent_gigabytes;
+        cin>>optical>>free_gigabytes;
+        BusinessInvoice bi(username, userNumber,basic_price, spent_gigabytes, optical, free_gigabytes);
+        cout<<"BusinessInvoice Created:\n";
+        cout<<bi;
+    }
+    else if (test_case == 2) {
+        // Test Case Business Invoice - Constructor, operators <<, ++
+        cin >> username >> userNumber >> basic_price >> spent_gigabytes;
+        cin >> optical >> free_gigabytes;
+        BusinessInvoice bi(username, userNumber, basic_price, spent_gigabytes, optical, free_gigabytes);
+        cout << "BusinessInvoice:\n";
+        cout << bi;
+        cout << "testing operator++\n";
+ 
+        // Additional spent gigabytes
+        cin >> num_inc;
+        for (int i=0; i<num_inc; ++i) {
+            bi++;
+        }
+        cout << bi;
+    }
+    else if (test_case == 3) {
+        // Test Case Business Invoice - Constructor, total_price, operators <<, ++,
+        cin >> username >> userNumber >> basic_price >> spent_gigabytes;
+        cin >> optical >> free_gigabytes;
+        BusinessInvoice bi(username, userNumber, basic_price, spent_gigabytes, optical, free_gigabytes);
+        cout << "Testing total_price()\n";
+        cout << bi;
+        cout<<bi.total_price()<<endl;
+        bi++;
+        cout << bi;
+        cout<<bi.total_price()<<endl;
+    }
+    else if (test_case == 4){
+        // Test Case Private Invoice - Constructor, operator <<
+        cin>>username>>userNumber>>basic_price>>spent_gigabytes;
+ 
+        PrivateInvoice pi(username, userNumber,basic_price, spent_gigabytes);
+        cout<<"Private Invoice Created:\n";
+        cout<<pi;
+    }
+    else if (test_case == 5) {
+        // Test Case Private Invoice - Constructor, operators <<, ++
+        cin >> username >> userNumber >> basic_price >> spent_gigabytes;
+        PrivateInvoice pi(username, userNumber,basic_price, spent_gigabytes);
+        cin >> num_inc;
+        for (int i=0; i<num_inc; ++i) {
+            pi++;
+        }
+        cout << pi;
+    }
+    else if (test_case == 6) {
+        // Test Case Private Invoice - Constructor, operators <<, +=
+        cin >> username >> userNumber >> basic_price >> spent_gigabytes;
+        PrivateInvoice pi(username, userNumber,basic_price, spent_gigabytes);
+        cin >> num_inc;
+        int film_length;
+        for (int i=0; i<num_inc; ++i) {
+            cin>>film_length;
+            pi+=film_length;
+        }
+        cout << pi;
+    }
+    else if (test_case == 7) {
+        // Test Case Private Invoice - Constructor, operators <<, +=, []
+        cin >> username >> userNumber >> basic_price >> spent_gigabytes;
+        PrivateInvoice pi(username, userNumber,basic_price, spent_gigabytes);
+        cin >> num_inc;
+        int film_length;
+        for (int i=0; i<num_inc; ++i) {
+            cin>>film_length;
+            pi+=film_length;
+        }
+        cout << pi;
+        cout << "Movie sizes: [";
+        for (int i=0; i<pi.getMoviesNo(); ++i){
+            cout << pi[i] << " ";
+        }
+        cout << "]" << endl;
+    }
+    else if (test_case == 8) {
+        // Test Case Private Invoice - Constructor, total_price
+        cin >> username >> userNumber >> basic_price >> spent_gigabytes;
+        PrivateInvoice pi(username, userNumber,basic_price, spent_gigabytes);
+        cout<<pi;
+        cout<< pi.total_price() <<endl;
+        cin >> num_inc;
+        int film_length;
+        for (int i=0; i<num_inc; ++i) {
+            cin>>film_length;
+            pi+=film_length;
+        }
+        cin >> num_inc;
+        for (int i=0; i<num_inc; ++i){
+            pi++;
+        }
+        cout << pi;
+        cout<< pi.total_price() <<endl;
+    }
+    else if (test_case == 9) {
+        // Test Case
+ 
+        int num_invoices;
+        int invoice_type;
+ 
+        cin >>num_invoices;
+        MonthlyInvoice ** mi = new MonthlyInvoice*[num_invoices];
+        for (int j=0;j<num_invoices; ++j) {
+ 
+            cin >> invoice_type;
+            if (invoice_type == 1){
+                cin >> username >> userNumber >> basic_price >> spent_gigabytes;
+                cin >> optical >> free_gigabytes;
+                BusinessInvoice * bip;
+                bip = new BusinessInvoice(username, userNumber, basic_price, spent_gigabytes, optical, free_gigabytes);
+                cin >> num_inc;
+                for (int i=0; i<num_inc; ++i) {
+                    (*(bip))++;
+                }
+                cout << *(bip);
+                cout<<bip->total_price()<<endl;
+ 
+                mi[j] = bip;
+            }
+            if (invoice_type == 2) {
+                cin >> username >> userNumber >> basic_price >> spent_gigabytes;
+                PrivateInvoice* pip = new PrivateInvoice(username, userNumber, basic_price, spent_gigabytes);
+                cin >> num_inc;
+                int film_length;
+                for (int i = 0; i < num_inc; ++i) {
+                    cin >> film_length;
+                    (*pip) += film_length;
+                }
+                cin >> num_inc;
+                for (int i = 0; i < num_inc; ++i) {
+                    (*pip)++;
+                }
+                cout << (*pip);
+                cout << pip->total_price() << endl;
+                mi[j] = pip;
+            }
+        }
+ 
+        cout << "The biggest invoice is:\n";
+        MonthlyInvoice& invoice = biggestInvoice(mi, num_invoices);
+ 
+        MonthlyInvoice* m = &invoice;
+        BusinessInvoice* bip;
+        PrivateInvoice* pip;
+        if (dynamic_cast<BusinessInvoice *> (m)){
+            bip = dynamic_cast<BusinessInvoice *> (m);
+            cout<<*bip << bip->total_price();
+        }
+        if (dynamic_cast<PrivateInvoice *> (m)){
+            pip = dynamic_cast<PrivateInvoice *> (m);
+            cout<<*pip << pip->total_price();
+        }
+ 
+    }
+    return 0;
+}
