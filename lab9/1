@@ -1,0 +1,271 @@
+#include <iostream>
+#include <cstring>
+#include <cmath>
+using namespace std;
+
+class InvalidPassword {
+private:
+    char text[50];
+public:
+    InvalidPassword(char * text = "") {
+        strcpy(this->text,text);
+    }
+    void message() {
+        cout<<text<<endl;
+    }
+};
+
+class InvalidEmail {
+private:
+    char text[50];
+public:
+    InvalidEmail(char * text = "") {
+        strcpy(this->text,text);
+    }
+    void message() {
+        cout<<text<<endl;
+    }
+};
+
+class MaximumSizeLimit
+{
+private:
+    int n;
+public:
+    MaximumSizeLimit(int n=0)
+    {
+        this->n=n;
+    }
+    void message()
+    {
+        cout<<"You can't add more than "<<n<<" users."<<endl;
+    }
+};
+
+class User {
+protected:
+    char username[50];
+    char password[50];
+    char email[50];
+public:
+    User(char * username = "", char * password = "", char * email = "") {
+        strcpy(this->username,username);
+        setPassword(password);
+        setEmail(email);
+    }
+    virtual double popularity() = 0;
+    void setPassword(const char *password="")
+    {
+        int malaBukva=0,golemaBukva=0,broj=0;
+        for(int i=0;i<strlen(password);i++)
+        {
+            if(password[i]>='A' && password[i]<='Z')
+            {
+                golemaBukva++;
+            }
+            else if(password[i]>='a' && password[i]<='z')
+            {
+                malaBukva++;
+            }
+            else if(password[i]>='0' && password[i]<='9')
+            {
+                broj++;
+            }
+        }
+        if(!malaBukva || !golemaBukva || !broj)
+        {
+            throw InvalidPassword("Password is too weak.");
+        }
+        strcpy(this->password,password);
+    }
+    void setEmail(const char *email="")
+    {
+        int brojac=0;
+        for(int i=0;i<strlen(email);i++)
+        {
+            if(email[i] == '@')
+            {
+                brojac++;
+            }
+        }
+        if(brojac == 1)
+        {
+            strcpy(this->email,email);
+        }
+        else
+        {
+            throw InvalidEmail("Mail is not valid.");
+        }
+    }
+};
+
+class FacebookUser : public User {
+private:
+    int friends, likes, comments;
+public:
+    FacebookUser(char * username = "", char * password = "", char * email = "", int f = 0, int l = 0, int c = 0) : User(username,password,email) {
+        friends = f;
+        likes = l;
+        comments = c;
+    }
+    double popularity () {
+        return friends + (likes*0.1) + (comments*0.5);
+    }
+};
+
+class TwitterUser : public User {
+private:
+    int followers, tweets;
+public:
+    TwitterUser(char * username = "", char * password = "", char * email = "", int flw = 0, int tw = 0) : User(username,password,email) {
+        followers = flw;
+        tweets = tw;
+    }
+    double popularity() {
+        return followers + (tweets*0.5);
+    }
+};
+
+class SocialNetwork  {
+private:
+    User ** users;
+    int nusers;
+    static int maxUsers;
+    void copy(const SocialNetwork &sn)
+    {
+        nusers = sn.nusers;
+        users = new User*[nusers];
+        for(int i=0;i<nusers;i++)
+        {
+            users[i]=sn.users[i];
+        }
+    }
+public:
+    SocialNetwork() {
+        nusers = 0;
+        users = new User * [nusers];
+    }
+    SocialNetwork(const SocialNetwork &sn) {
+        copy(sn);
+    }
+    SocialNetwork& operator=(const SocialNetwork &sn) {
+        if(this != &sn) {
+            delete [] users;
+            copy(sn);
+        }
+        return * this;
+    }
+    SocialNetwork& operator+=(User * sn) {
+        if(nusers == maxUsers) {
+            throw(MaximumSizeLimit(maxUsers));
+        }
+        User ** tmp = new User *[nusers+1];
+        for(int i=0; i<nusers; i++) {
+            tmp[i] = users[i];
+        }
+        tmp[nusers++] = sn;
+        delete [] users;
+        users = tmp;
+        return * this;
+    }
+    double avgPopularity() {
+        double total = 0;
+        for(int i=0; i<nusers; i++) {
+            total += users[i]->popularity();
+        }
+        return total/nusers;
+    }
+    static void changeMaximumSize(int number)
+    {
+        SocialNetwork::maxUsers=number;
+    }
+
+};
+
+int SocialNetwork::maxUsers = 5;
+
+int main() {
+
+  SocialNetwork network = SocialNetwork();
+    int n;
+    cin >> n;
+    char username[50];
+    char password[50];
+    char email[50];
+    int userType;
+    for (int i=0; i < n; ++i) {
+      cin >> username;
+      cin >> password;
+      cin >> email;
+      cin >> userType;
+      if (userType == 1) {
+        int friends;
+        int likes;
+        int comments;
+        cin >> friends >> likes >> comments;
+          
+        try {
+        User * u = new FacebookUser(username,password,email,friends,likes,comments);
+        network += u;
+        }
+        catch (InvalidPassword &i) {
+        i.message();
+        }
+        catch (InvalidEmail &ie) {
+        ie.message();
+        }
+        catch (MaximumSizeLimit &im) {
+        im.message();
+        }
+
+
+          
+      }
+      else {
+        int followers;
+        int tweets;
+        cin >> followers >> tweets;
+          
+        // TODO: Try-catch  
+        try {
+        User * u= new TwitterUser(username,password,email,followers,tweets);
+        network += u;
+        }
+        catch (InvalidPassword &i) {
+            i.message();
+        }
+        catch (InvalidEmail &ie) {
+            ie.message();
+        }
+        catch (MaximumSizeLimit &im) {
+            im.message();
+        }
+      }
+
+    }
+    network.changeMaximumSize(6);
+    cin >> username;
+    cin >> password;
+    cin >> email;
+    int followers;
+    int tweets;
+    cin >> followers >> tweets;
+    
+    // TODO: Try-catch
+    try {
+    User * u= new TwitterUser(username,password,email,followers,tweets);
+    network += u;
+    }
+    catch (InvalidPassword &i) {
+        i.message();
+    }
+    catch (InvalidEmail &ie) {
+        ie.message();
+    }
+    catch (MaximumSizeLimit &im) {
+        im.message();
+    }
+    
+    cout << network.avgPopularity();
+
+}
