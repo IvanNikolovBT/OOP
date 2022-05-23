@@ -1,0 +1,228 @@
+#include <iostream>
+#include <cstring>
+#include <cmath>
+using namespace std;
+
+enum tip {
+    Smartphone, Computer
+};
+
+class InvalidProductionDate {
+public:
+    void message() {
+        cout<<"Невалидна година на производство"<<endl;
+    }
+};
+
+class Device {
+private:
+    char model[100];
+    tip dtype;
+    static double check;
+    int year;
+public:
+    Device(char * model = "", tip dtype = Smartphone, int year = 0) {
+        strcpy(this->model, model);
+        this->dtype = dtype;
+        this->year = year;
+    }
+    int getGodina() {
+        return year;
+    }
+    char * getModel() {
+        return model;
+    }
+    tip getTip() {
+        return dtype;
+    }
+    static void setPocetniCasovi(double nov) {
+        check = nov;
+    }
+    friend ostream& operator<<(ostream &out, Device &d) {
+        out<<d.model<<endl;
+        if(d.dtype == Smartphone) {
+            out<<"Mobilen ";
+            if(d.year > 2015) {
+                out<<check+2<<endl;
+            }
+            else
+                out<<check<<endl;
+        }
+        if(d.dtype == Computer) {
+            out<<"Laptop ";
+            if(d.year > 2015) {
+                out<<check+4<<endl;
+            }
+            else
+                out<<check+2<<endl;
+        }
+    }
+};
+double Device::check = 1.0;
+
+class MobileServis {
+private:
+    char address[100];
+    Device * devices;
+    int n;
+public:
+    MobileServis(char * address = "") {
+        strcpy(this->address, address);
+        devices = new Device[0];
+        n = 0;
+    }
+    MobileServis& operator+=(Device &ms) {
+        if(ms.getGodina() > 2019 || ms.getGodina() < 2000) {
+            throw InvalidProductionDate();
+        }
+        Device * tmp = new Device[n+1];
+        for(int i=0; i<n; i++) {
+            tmp[i] = devices[i];
+        }
+        tmp[n++] = ms;
+        delete [] devices;
+        devices = tmp;
+        return * this;
+    }
+    void pecatiCasovi() {
+        cout<<"Ime: "<<address<<endl;
+        for(int i=0; i<n; i++) {
+            cout<<devices[i];
+        }
+    }
+};
+
+int main(){
+    	int testCase;
+	cin >> testCase;
+    char ime[100];
+    int tipDevice;
+    int godina;
+    int n;
+    Device devices[50];
+	if (testCase == 1){
+		cout << "===== Testiranje na klasite ======" << endl;
+		cin >> ime;
+		cin >> tipDevice;
+		cin >> godina;
+		Device ig(ime,(tip)tipDevice,godina);
+        cin>>ime;
+		MobileServis t(ime);
+        cout<<ig;
+		}
+	if (testCase == 2){
+		cout << "===== Testiranje na operatorot += ======" << endl;
+        cin>>ime;
+        cin >> n;
+		MobileServis t(ime);
+		for(int i=0;i<n;i++)
+        {
+            cin >> ime;
+            cin >> tipDevice;
+            cin >> godina;
+            Device tmp(ime,(tip)tipDevice,godina);
+            try{
+                t+=tmp;
+            }
+            catch(InvalidProductionDate &ip) {
+                ip.message();
+            }
+
+        }
+        t.pecatiCasovi();
+	}
+	if (testCase == 3){
+		cout << "===== Testiranje na isklucoci ======" << endl;
+        cin>>ime;
+        cin >> n;
+		MobileServis t(ime);
+		for(int i=0;i<n;i++)
+        {
+            cin >> ime;
+            cin >> tipDevice;
+            cin >> godina;
+            Device tmp(ime,(tip)tipDevice,godina);
+             try{
+                t+=tmp;
+            }
+            catch(InvalidProductionDate &ip) {
+                ip.message();
+            }
+
+        }
+        t.pecatiCasovi();
+	}
+	if (testCase == 4){
+		cout <<"===== Testiranje na konstruktori ======"<<endl;
+		 cin>>ime;
+        cin >> n;
+		MobileServis t(ime);
+		for(int i=0;i<n;i++)
+        {
+            cin >> ime;
+            cin >> tipDevice;
+            cin >> godina;
+            Device tmp(ime,(tip)tipDevice,godina);
+             try{
+                t+=tmp;
+            }
+            catch(InvalidProductionDate &ip) {
+                ip.message();
+            }
+
+        }
+        MobileServis t2 = t;
+        t2.pecatiCasovi();
+	}
+	if (testCase == 5){
+		cout << "===== Testiranje na static clenovi ======" << endl;
+        cin>>ime;
+        cin >> n;
+		MobileServis t(ime);
+		for(int i=0;i<n;i++)
+        {
+            cin >> ime;
+            cin >> tipDevice;
+            cin >> godina;
+            Device tmp(ime,(tip)tipDevice,godina);
+
+             try{
+                t+=tmp;
+            }
+            catch(InvalidProductionDate &ip) {
+                ip.message();
+            }
+
+        }
+        t.pecatiCasovi();
+        cout << "===== Promena na static clenovi ======" << endl;
+		Device::setPocetniCasovi(2);
+        t.pecatiCasovi();
+	}
+
+		if (testCase == 6){
+		cout << "===== Testiranje na kompletna funkcionalnost ======" << endl;
+		cin>>ime;
+        cin >> n;
+		MobileServis t(ime);
+		for(int i=0;i<n;i++)
+        {
+            cin >> ime;
+            cin >> tipDevice;
+            cin >> godina;
+            Device tmp(ime,(tip)tipDevice,godina);
+             try{
+                t+=tmp;
+            }
+            catch(InvalidProductionDate &ip) {
+                ip.message();
+            }
+
+        }
+		Device::setPocetniCasovi(3);
+        MobileServis t2 = t;
+        t2.pecatiCasovi();
+	}
+
+	return 0;
+}
