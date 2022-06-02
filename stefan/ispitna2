@@ -1,0 +1,259 @@
+#include<iostream>
+#include<cstring>
+
+using namespace std;
+
+class InvalidOperation {
+public:
+    void message() {
+        cout<<"Can’t merge two different cryptocurrencies."<<endl;
+    }
+};
+
+
+class Cryptocurrency {
+private:
+    char * ime;
+    char kod[7];
+    double cena;
+    double kolicina;
+    static double provizija;
+public:
+    Cryptocurrency(char * ime = "", char * kod = "", double cena = 0.0, double kolicina = 0.0) {
+        strcpy(this->kod, kod);
+        this->ime = new char[strlen(ime+1)];
+        strcpy(this->ime, ime);
+        this->cena = cena;
+        this->kolicina = kolicina;
+    }
+    Cryptocurrency(const Cryptocurrency &c) {
+        strcpy(kod, c.kod);
+        ime = new char[strlen(c.ime+1)];
+        strcpy(this->ime, c.ime);
+        this->cena = c.cena;
+        this->kolicina = c.kolicina;
+    }
+    Cryptocurrency& operator=(const Cryptocurrency &c) {
+        if(this != &c) {
+            delete [] ime;
+            strcpy(kod, c.kod);
+            ime = new char[strlen(c.ime+1)];
+            strcpy(this->ime, c.ime);
+            this->cena = c.cena;
+            this->kolicina = c.kolicina;
+        }
+        return * this;
+    }
+    ~Cryptocurrency() {
+        delete [] ime;
+    }
+    double vkupnaVrednost() {
+        return cena * kolicina;
+    }
+    friend ostream& operator<<(ostream &out, Cryptocurrency &c) {
+        out<<c.kod<<" "<<c.ime<<" "<<c.cena<<" "<<c.kolicina<<" "<<c.vkupnaVrednost()<<endl;
+        return out;
+    }
+    Cryptocurrency& operator+=(Cryptocurrency &c) {
+        if(strcmp(ime, c.ime) != 0 && strcmp(kod, c.kod) != 0) {
+            throw InvalidOperation();
+        }
+        cena = c.cena;
+        kolicina+=c.kolicina;
+        return * this;
+    }
+    double sell() {
+        double v = kolicina*cena - (kolicina*cena*provizija/100);
+        kolicina = 0;
+        return v;
+    }
+    char * getIme() {
+        return ime;
+    }
+    char * getKod() {
+        return kod;
+    }
+    static void setProvision(double novo) {
+        provizija = novo;
+    }
+};
+double Cryptocurrency::provizija=2.5;
+
+class Wallet {
+private:
+    char sopstvenik[40];
+    Cryptocurrency * kripto;
+    int n;
+public:
+    Wallet(char * sopstvenik = "") {
+        strcpy(this->sopstvenik, sopstvenik);
+        kripto = new Cryptocurrency[0];
+        n = 0;
+    }
+    friend ostream& operator<<(ostream &out, Wallet &v) {
+        out<<v.sopstvenik<<"\nCryptocurrencies: \n";
+        if(v.n == 0) {
+                out<<"EMPTY"<<endl;
+            }
+        for(int i=0; i<v.n; i++) {
+                out<<v.kripto[i];
+        }
+        out<<endl;
+        return out;
+    }
+    Wallet& operator+=(Cryptocurrency &c) {
+        int flag = 0, zapi;
+        for(int i=0; i<n; i++) {
+            if(strcmp(kripto[i].getIme(), c.getIme()) == 0 && strcmp(kripto[i].getKod(), c.getKod()) == 0) {
+                flag = 1;
+                zapi = i;
+                break;
+            }
+        }
+        if(flag == 1) {
+            kripto[zapi] += c;
+        }
+        else {
+
+
+         Cryptocurrency * tmp = new Cryptocurrency[n+1];
+                for(int i=0; i<n; i++) {
+                    tmp[i] = kripto[i];
+                }
+                tmp[n++] = c;
+                delete [] kripto;
+                kripto = tmp;
+                }
+        return * this;
+    }
+    /*Wallet &operator += (Cryptocurrency &c)
+    {
+        int flag=0,zapi;
+        for(int i=0; i<n; i++)
+            if(strcmp(c.getIme(),kripto[i].getIme())==0 && strcmp(kripto[i].getKod(),c.getKod())==0)
+            {
+                flag=1;
+                zapi=i;
+                break;
+            }
+        if(flag)
+            kripto[zapi]+=c;
+        else
+        {
+            Cryptocurrency *zap = new Cryptocurrency[n+1];
+            for(int i=0; i<n; i++)
+                zap[i] = kripto[i];
+            delete[]kripto;
+            zap[n++] = c;
+            kripto = zap;
+        }
+        return *this;
+    }*/
+};
+
+
+int main() {
+      int testCase;
+    cin >> testCase;
+
+    if (testCase == 0) {
+        cout << "Cryptocurrency constructors" << endl;
+        Cryptocurrency c1("Cardano", "ADA", 1.45);
+        Cryptocurrency c2("Cardano", "ADA", 1.45, 2.5);
+        cout << "TEST PASSED" << endl;
+    } else if (testCase == 1) {
+        cout << "Cryptocurrency copy-constructor and operator =" << endl;
+        Cryptocurrency c2("Cardano", "ADA", 1.45, 2.5);
+        Cryptocurrency c1 = c2; //copy-constructor
+        Cryptocurrency c3("BITCOIN", "BTC", 35000, 0.0001);
+        c3 = c2;
+        cout << "TEST PASSED" << endl;
+    } else if (testCase == 2) {
+        cout << "Cryptocurrency operator <<" << endl;
+        Cryptocurrency c1("Cardano", "ADA", 1.45);
+        Cryptocurrency c2("Cardano", "ADA", 1.45, 2.5);
+        cout << c1;
+        cout << c2;
+    } else if (testCase == 3) {
+        cout << "Cryptocurrency operator += (normal behavior)" << endl;
+        Cryptocurrency c1("Cardano", "ADA", 1.45, 8);
+        Cryptocurrency c2("Cardano", "ADA", 1.39, 2.5);
+        cout<<c1<<"+="<<endl<<c2<<"-->"<<endl;
+        try {
+            cout << (c1 += c2);
+        }
+        catch(InvalidOperation &ie) {
+            ie.message();
+        }
+    } else if (testCase == 4) {
+        cout << "Cryptocurrency operator += (abnormal behavior)" << endl;
+        Cryptocurrency c1("Cardano", "ADA", 1.45, 8);
+        Cryptocurrency c2("Bitcoin", "BTC", 35000, 0.0008);
+        cout<<c1<<"+="<<endl<<c2<<"-->"<<endl;
+         try {
+            cout << (c1 += c2);
+        }
+        catch(InvalidOperation &ie) {
+            ie.message();
+        }
+    } else if (testCase == 5) {
+        cout << "Cryptocurrency method sell and static members test" << endl;
+        int n;
+        cin >> n;
+        Cryptocurrency *cryptocurrencies1 = new Cryptocurrency[n];
+        Cryptocurrency *cryptocurrencies2 = new Cryptocurrency[n];
+        char name[50], code[7];
+        double price, quantity;
+        for (int i = 0; i < n; i++) {
+            cin >> name >> code >> price >> quantity;
+            cryptocurrencies1[i] = Cryptocurrency(name, code, price, quantity);
+            cryptocurrencies2[i] = Cryptocurrency(name, code, price, quantity);
+        }
+        cout << "BEFORE CHANGE OF PROVISION PERCENT" << endl;
+        for (int i = 0; i < n; i++) {
+            cout << "    BEFORE SELLING --> " << cryptocurrencies1[i];
+            cout << "     PROFIT FROM SELLING -->" << cryptocurrencies1[i].sell() << endl;
+            cout << "    AFTER SELLING --> " << cryptocurrencies1[i];
+        }
+        Cryptocurrency::setProvision(5.1);
+        cout << "AFTER CHANGE OF PROVISION PERCENT" << endl;
+        for (int i = 0; i < n; i++) {
+            cout << "    BEFORE SELLING --> " << cryptocurrencies2[i];
+            cout << "     PROFIT FROM SELLING -->" << cryptocurrencies2[i].sell() << endl;
+            cout << "    AFTER SELLING --> " << cryptocurrencies2[i];
+        }
+
+        delete[] cryptocurrencies1;
+        delete[] cryptocurrencies2;
+    } else if (testCase == 6) {
+        cout << "Wallet constructors" << endl;
+        Wallet w1("John Doe");
+        Wallet w2("John Doe");
+        cout << "TEST PASSED" << endl;
+    } else if (testCase == 7) {
+        cout << "Wallet copy-constructor and operator =" << endl;
+        Wallet w1("John Doe");
+        Wallet w2("John Doe");
+        Wallet w3 = w1; //copy constructor;
+        w2 = w1; //operator =
+        cout << "TEST PASSED" << endl;
+    } else if (testCase == 8) {
+        cout << "Wallet operator <<" << endl;
+        Wallet w1("John Doe");
+        cout << w1;
+    } else if (testCase == 9) {
+        cout << "Wallet += and <<" << endl;
+        Wallet wallet("John Doe");
+        int n;
+        cin >> n;
+        char name[50], code[7];
+        double price, quantity;
+        for (int i = 0; i < n; i++) {
+            cin >> name >> code >> price >> quantity;
+            Cryptocurrency c(name, code, price, quantity);
+            wallet += c;
+        }
+        cout << wallet;
+    }
+    return 0;
+}
